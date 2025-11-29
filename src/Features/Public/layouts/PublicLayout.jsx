@@ -1,85 +1,60 @@
 // src/Features/Public/Layouts/PublicLayout.jsx
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, Outlet } from 'react-router-dom';
 import { Home, Hotel, User, LogIn, Bell, Search, Menu, X } from 'lucide-react';
 import { useState } from 'react';
-
-import { useAuth } from '../../../context/AuthContext';
+import { navbar, slideDown, footer } from '../../../utils/animations';
 
 const PublicLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
-
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
-      <header className="bg-white shadow-sm">
+      <motion.header className="bg-white shadow-md sticky top-0 z-50" {...navbar}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
-              <Link to="/" className="text-2xl font-bold text-blue-600">
-                Luxe Stay
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="bg-linear-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
+                  <Hotel className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Luxe Stay
+                </span>
               </Link>
             </div>
-            <nav className="hidden md:flex space-x-8">
-              <Link to="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+            <nav className="hidden md:flex space-x-1">
+              <Link to="/" className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
                 Home
               </Link>
-              <Link to="/HotelsPage" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+              <Link to="/HotelsPage" className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
                 Hotels
               </Link>
-              <Link to="/about" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+              <Link to="/about" className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
                 About
               </Link>
-              <Link to="/contact" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+              <Link to="/contact" className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
                 Contact
               </Link>
-              {user && (
-                <Link to="/my-bookings" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                  My Bookings
-                </Link>
-              )}
             </nav>
-            <div className="flex items-center space-x-4">
-              <button className="p-2 rounded-full text-gray-500 hover:text-gray-700 hidden md:block">
+            <div className="flex items-center space-x-3">
+              <button className="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-50 hidden md:block transition-all duration-300">
                 <Search className="h-5 w-5" />
               </button>
-
-              {user ? (
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                      {user.full_name ? user.full_name[0].toUpperCase() : user.email[0].toUpperCase()}
-                    </div>
-                    <span className="text-sm font-medium text-gray-700 hidden md:block">
-                      {user.full_name || user.email}
-                    </span>
-                  </div>
-                  <button
-                    onClick={logout}
-                    className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium"
-                  >
-                    Logout
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <Link to="/login" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium hidden md:block">
-                    Login
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 hidden md:block"
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
-
+              <Link to="/login" className="text-gray-700 hover:text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hidden md:block transition-all duration-300">
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="bg-linear-to-r from-blue-600 to-purple-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:from-blue-700 hover:to-purple-700 hidden md:block transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+              >
+                Sign Up
+              </Link>
               {/* Mobile menu button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                className="md:hidden p-2 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
               >
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
@@ -87,59 +62,62 @@ const PublicLayout = () => {
           </div>
         </div>
         {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <Link to="/" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
-                Home
-              </Link>
-              <Link to="/HotelsPage" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
-                Hotels
-              </Link>
-              <Link to="/about" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
-                About
-              </Link>
-              <Link to="/contact" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
-                Contact
-              </Link>
-              {user && (
-                <Link to="/my-bookings" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
-                  My Bookings
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              className="md:hidden bg-white border-t border-gray-200 shadow-lg"
+              {...slideDown}
+            >
+              <div className="px-4 pt-2 pb-3 space-y-1">
+                <Link
+                  to="/"
+                  className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Home
                 </Link>
-              )}
-              <div className="border-t border-gray-200 pt-4 pb-3">
-                {user ? (
-                  <div className="px-2 space-y-1">
-                    <div className="flex items-center px-3 py-2">
-                      <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-3">
-                        {user.full_name ? user.full_name[0].toUpperCase() : user.email[0].toUpperCase()}
-                      </div>
-                      <span className="text-base font-medium text-gray-800">
-                        {user.full_name || user.email}
-                      </span>
-                    </div>
-                    <button
-                      onClick={logout}
-                      className="block w-full text-left px-3 py-2 text-base font-medium text-red-600 hover:bg-gray-50"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <div className="mt-3 space-y-1 px-2">
-                    <Link to="/login" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
-                      Login
-                    </Link>
-                    <Link to="/register" className="block px-3 py-2 text-base font-medium bg-blue-600 text-white hover:bg-blue-700 rounded-md">
-                      Sign Up
-                    </Link>
-                  </div>
-                )}
+                <Link
+                  to="/HotelsPage"
+                  className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Hotels
+                </Link>
+                <Link
+                  to="/about"
+                  className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                <Link
+                  to="/contact"
+                  className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Contact
+                </Link>
+                <div className="border-t border-gray-200 pt-3 mt-3">
+                  <Link
+                    to="/login"
+                    className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="block px-4 py-3 text-base font-semibold bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-300 mt-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
-      </header>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.header>
 
       {/* Main Content */}
       <main className="mb-4 mt-4  grow">
@@ -147,7 +125,7 @@ const PublicLayout = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white">
+      <motion.footer className="bg-gray-800 text-white" {...footer}>
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
@@ -189,7 +167,7 @@ const PublicLayout = () => {
             </p>
           </div>
         </div>
-      </footer>
+      </motion.footer>
     </div>
 
   );

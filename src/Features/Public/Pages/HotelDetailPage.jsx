@@ -1,6 +1,8 @@
 // src/Features/HotelDetails/HotelDetails.jsx
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
+import { fadeIn, staggerContainer, staggerItem } from '../../../utils/animations';
 
 const HotelDetails = () => {
   const { hotelId } = useParams();
@@ -62,13 +64,13 @@ const HotelDetails = () => {
   };
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => 
+    setCurrentImageIndex((prev) =>
       prev === hotel.images.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => 
+    setCurrentImageIndex((prev) =>
       prev === 0 ? hotel.images.length - 1 : prev - 1
     );
   };
@@ -79,9 +81,8 @@ const HotelDetails = () => {
         {[...Array(5)].map((_, i) => (
           <svg
             key={i}
-            className={`w-5 h-5 ${
-              i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'
-            }`}
+            className={`w-5 h-5 ${i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'
+              }`}
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -96,7 +97,7 @@ const HotelDetails = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <motion.div className="container mx-auto px-4 py-8 max-w-7xl" {...fadeIn}>
       <button
         onClick={() => navigate(-1)}
         className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
@@ -124,7 +125,7 @@ const HotelDetails = () => {
           alt={`${hotel.name} - ${currentImageIndex + 1}`}
           className="w-full h-full object-cover"
         />
-        
+
         {hotel.images.length > 1 && (
           <>
             <button
@@ -151,9 +152,8 @@ const HotelDetails = () => {
             <button
               key={index}
               onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(index); }}
-              className={`w-3 h-3 rounded-full ${
-                currentImageIndex === index ? 'bg-white' : 'bg-white bg-opacity-50'
-              }`}
+              className={`w-3 h-3 rounded-full ${currentImageIndex === index ? 'bg-white' : 'bg-white bg-opacity-50'
+                }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
@@ -170,11 +170,10 @@ const HotelDetails = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
@@ -194,9 +193,14 @@ const HotelDetails = () => {
             {activeTab === 'rooms' && (
               <div>
                 <h2 className="text-2xl font-semibold mb-6">Rooms & Suites</h2>
-                <div className="space-y-6">
+                <motion.div
+                  className="space-y-6"
+                  variants={staggerContainer}
+                  initial="initial"
+                  animate="animate"
+                >
                   {hotel.roomTypes.map((room) => (
-                    <div key={room.id} className="border rounded-lg overflow-hidden">
+                    <motion.div key={room.id} className="border rounded-lg overflow-hidden" variants={staggerItem}>
                       <div className="p-6">
                         <div className="flex flex-col md:flex-row md:justify-between md:items-start">
                           <div className="mb-4 md:mb-0">
@@ -216,9 +220,9 @@ const HotelDetails = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             )}
 
@@ -244,7 +248,7 @@ const HotelDetails = () => {
                 <ul className="space-y-3">
                   {hotel.policies.map((policy, index) => (
                     <li key={index} className="flex items-start">
-                      <svg className="w-5 h-5 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-gray-400 mr-2 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                       <span>{policy}</span>
@@ -266,7 +270,7 @@ const HotelDetails = () => {
               </div>
               <div className="mt-1 text-sm text-green-600 font-medium">Free cancellation available</div>
             </div>
-            
+
             <div className="p-6">
               <div className="space-y-4">
                 <div>
@@ -293,15 +297,15 @@ const HotelDetails = () => {
                   </select>
                 </div>
               </div>
-              
+
               <button className="mt-6 w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                 Book Now
               </button>
-              
+
               <div className="mt-4 text-center text-sm text-gray-500">
                 You won't be charged yet
               </div>
-              
+
               <div className="mt-6 pt-6 border-t">
                 <h3 className="font-medium mb-3">What's included</h3>
                 <ul className="space-y-2 text-sm text-gray-600">
@@ -329,7 +333,7 @@ const HotelDetails = () => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div >
   );
 };
 

@@ -1,63 +1,54 @@
 // src/Features/Manager/pages/ManagerDashboard.jsx
 import { Hotel, Users, Calendar, DollarSign, TrendingUp } from 'lucide-react';
 
-import React, { useState, useEffect } from 'react';
-import api from '../../../api/auth';
+const stats = [
+  {
+    title: 'Total Bookings',
+    value: '1,234',
+    change: '+12% from last month',
+    icon: Calendar,
+    color: 'bg-blue-500',
+  },
+  {
+    title: 'Available Rooms',
+    value: '24',
+    change: '5 rooms available',
+    icon: Hotel,
+    color: 'bg-green-500',
+  },
+  {
+    title: 'Monthly Revenue',
+    value: '$24,580',
+    change: '+8.2% from last month',
+    icon: DollarSign,
+    color: 'bg-purple-500',
+  },
+  {
+    title: 'Occupancy Rate',
+    value: '78%',
+    change: '+5% from last month',
+    icon: TrendingUp,
+    color: 'bg-yellow-500',
+  },
+];
+
+const recentBookings = [
+  {
+    id: 1,
+    guest: 'John Doe',
+    room: 'Deluxe Suite',
+    checkIn: '2023-11-15',
+    checkOut: '2023-11-18',
+    status: 'Confirmed',
+  },
+  // Add more sample data...
+];
 
 const ManagerDashboard = () => {
-  const [statsData, setStatsData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await api.get('/api/manager/dashboard');
-        setStatsData(response.data);
-      } catch (error) {
-        console.error("Error fetching manager stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
-
-  const stats = [
-    {
-      title: 'Total Bookings',
-      value: statsData ? statsData.total_bookings : '...',
-      change: 'Lifetime bookings',
-      icon: Calendar,
-      color: 'bg-blue-500',
-    },
-    {
-      title: 'Available Rooms',
-      value: statsData ? statsData.total_rooms : '...', // Using total rooms for now as "Available" logic is complex
-      change: 'Total rooms managed',
-      icon: Hotel,
-      color: 'bg-green-500',
-    },
-    {
-      title: 'Revenue',
-      value: statsData ? `$${statsData.revenue.toLocaleString()}` : '...',
-      change: 'Total revenue',
-      icon: DollarSign,
-      color: 'bg-purple-500',
-    },
-    {
-      title: 'Occupancy Rate',
-      value: statsData ? statsData.occupancy : '...',
-      change: 'Current active bookings',
-      icon: TrendingUp,
-      color: 'bg-yellow-500',
-    },
-  ];
-
-  const recentBookings = statsData ? statsData.recent_bookings : [];
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
-
+      
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {

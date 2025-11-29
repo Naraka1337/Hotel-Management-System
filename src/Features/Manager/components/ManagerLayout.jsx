@@ -1,17 +1,18 @@
 // src/Features/Manager/components/ManagerLayout.jsx
 import React, { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Hotel, Users, DollarSign, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Hotel, Users, DollarSign, Settings, Sliders, LogOut } from 'lucide-react';
 
 const ManagerLayout = () => {
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    
+
     const navItems = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/manager' },
         { name: 'Rooms', icon: Hotel, path: '/manager/rooms' },
         { name: 'Bookings', icon: Users, path: '/manager/bookings' },
         { name: 'Revenue', icon: DollarSign, path: '/manager/revenue' },
+        { name: 'Revenue Settings', icon: Sliders, path: '/manager/revenue-settings' },
         { name: 'Settings', icon: Settings, path: '/manager/settings' },
     ];
 
@@ -19,7 +20,7 @@ const ManagerLayout = () => {
         <div className="flex min-h-screen bg-gray-50 font-sans text-gray-800">
             {/* Mobile menu button */}
             <div className="fixed top-4 left-4 z-50 md:hidden">
-                <button 
+                <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     className="p-2 rounded-md bg-blue-600 text-white shadow-lg"
                 >
@@ -35,12 +36,12 @@ const ManagerLayout = () => {
 
             {/* Overlay */}
             {isSidebarOpen && (
-                <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
+                <div
+                    className="fixed inset-0 bg-gray-600 bg-opacity-50 z-20 md:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
-            
+
             {/* Sidebar */}
             <div className={`w-64 bg-gray-800 text-white flex flex-col h-screen fixed md:static z-30 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 <div className="p-6 text-xl font-bold tracking-wider border-b border-gray-700 text-white flex items-center justify-between">
@@ -50,7 +51,7 @@ const ManagerLayout = () => {
                         </span>
                         Manager
                     </div>
-                    <button 
+                    <button
                         onClick={() => setIsSidebarOpen(false)}
                         className="md:hidden text-gray-400 hover:text-white"
                     >
@@ -59,7 +60,7 @@ const ManagerLayout = () => {
                         </svg>
                     </button>
                 </div>
-                    
+
                 <nav className="grow p-4 space-y-1">
                     {navItems.map((item) => {
                         const isActive = location.pathname === item.path;
@@ -69,11 +70,10 @@ const ManagerLayout = () => {
                                 key={item.name}
                                 to={item.path}
                                 onClick={() => setIsSidebarOpen(false)}
-                                className={`flex items-center w-full p-3 rounded-lg transition-all duration-200 ${
-                                    isActive 
-                                        ? 'bg-blue-600 text-white' 
-                                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                                }`}
+                                className={`flex items-center w-full p-3 rounded-lg transition-all duration-200 ${isActive
+                                    ? 'bg-blue-600 text-white'
+                                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                                    }`}
                             >
                                 <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : 'text-blue-400'}`} />
                                 <span className="font-medium">{item.name}</span>
@@ -84,7 +84,7 @@ const ManagerLayout = () => {
                         );
                     })}
                 </nav>
-                
+
                 <div className="p-4 border-t border-gray-700">
                     <button className="flex items-center w-full p-3 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors">
                         <LogOut className="w-5 h-5 mr-3 text-red-400" />
@@ -92,7 +92,7 @@ const ManagerLayout = () => {
                     </button>
                 </div>
             </div>
-            
+
             {/* Main Content */}
             <div className="flex-1 w-full">
                 {/* Top Navigation */}

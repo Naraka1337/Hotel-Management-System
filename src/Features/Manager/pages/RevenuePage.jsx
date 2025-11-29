@@ -59,25 +59,7 @@ const RevenuePage = () => {
       </div>
 
       {/* Revenue Chart */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold">Revenue Overview</h2>
-          <div className="flex space-x-2">
-            <button className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg">
-              Monthly
-            </button>
-            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
-              Weekly
-            </button>
-            <button className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
-              Daily
-            </button>
-          </div>
-        </div>
-        <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-          <p className="text-gray-400">Revenue chart will be displayed here</p>
-        </div>
-      </div>
+    
 
       {/* Top Performing Rooms */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

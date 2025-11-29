@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Hotel, Users, Calendar, DollarSign, Settings, LayoutDashboard, Plus, Trash2, Edit } from 'lucide-react';
+import { Hotel, Users, Calendar, DollarSign, Settings, LayoutDashboard, Plus, Trash2, Edit, Bed } from 'lucide-react';
+import AllRoomsPage from './AllRoomsPage';
+import AllHotelsPage from './AllHotelsPage';
+import UserManagementTable from '../UserManagementTable';
 
 // --- Global Constants ---
 const __app_id = typeof window !== 'undefined' && typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
@@ -27,59 +30,46 @@ const getStatusBadge = (status) => {
     }
 };
 
-import api from '../../../api/auth'; // Using the axios instance from auth.js which handles tokens
+// --- 1. Dashboard Component (Based on User's Code) ---
 
 const Dashboard = () => {
-    const [statsData, setStatsData] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await api.get('/api/admin/dashboard');
-                setStatsData(response.data);
-            } catch (error) {
-                console.error("Error fetching admin stats:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchStats();
-    }, []);
-
-    // Sample data fallback or use real data
+    // Sample data
     const stats = [
         {
             title: 'Total Hotels',
-            value: statsData ? statsData.total_hotels : '...',
+            value: '12',
             icon: <Hotel className="w-10 h-10 opacity-80" />,
             gradient: 'from-blue-500 to-blue-600',
             textColor: 'text-blue-100'
         },
         {
             title: 'Total Bookings',
-            value: statsData ? statsData.total_bookings : '...',
+            value: '284',
             icon: <Calendar className="w-10 h-10 opacity-80" />,
             gradient: 'from-green-500 to-green-600',
             textColor: 'text-green-100'
         },
         {
             title: 'Total Revenue',
-            value: statsData ? `$${statsData.revenue.toLocaleString()}` : '...',
+            value: '$24,580',
             icon: <DollarSign className="w-10 h-10 opacity-80" />,
             gradient: 'from-purple-500 to-purple-600',
             textColor: 'text-purple-100'
         },
         {
             title: 'Active Users',
-            value: statsData ? statsData.active_users : '...',
+            value: '1,243',
             icon: <Users className="w-10 h-10 opacity-80" />,
             gradient: 'from-amber-500 to-amber-600',
             textColor: 'text-amber-100'
         }
     ];
 
-    const recentBookings = statsData ? statsData.recent_bookings : [];
+    const recentBookings = [
+        { id: 1, hotel: 'Grand Plaza Hotel', guest: 'John Doe', checkIn: '2025-10-20', checkOut: '2025-10-25', amount: 1250, status: 'Confirmed' },
+        { id: 2, hotel: 'Seaside Resort', guest: 'Jane Smith', checkIn: '2025-10-18', checkOut: '2025-10-22', amount: 720, status: 'Pending' },
+        { id: 3, hotel: 'City Inn', guest: 'Bob Johnson', checkIn: '2025-10-15', checkOut: '2025-10-16', amount: 180, status: 'Confirmed' },
+    ];
 
     return (
         <div className=" ml p-6 space-y-6 ">
@@ -151,386 +141,7 @@ const Dashboard = () => {
     );
 };
 
-// --- 2. All Hotels Page ---
 
-const AllHotelsPage = () => {
-    const [hotels, setHotels] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
-    const [managers, setManagers] = useState([]);
-    const [newHotel, setNewHotel] = useState({
-        name: '',
-        location: '',
-        description: '',
-        image_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-        manager_id: ''
-    });
-
-    const fetchHotels = async () => {
-        try {
-            const response = await api.get('/api/admin/hotels');
-            setHotels(response.data);
-        } catch (error) {
-            console.error("Error fetching hotels:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchManagers = async () => {
-        try {
-            const response = await api.get('/api/admin/users');
-            // Filter only managers
-            const managerList = response.data.filter(u => u.role === 'manager');
-            setManagers(managerList);
-            if (managerList.length > 0) {
-                setNewHotel(prev => ({ ...prev, manager_id: managerList[0].id }));
-            }
-        } catch (error) {
-            console.error("Error fetching managers:", error);
-        }
-    };
-
-    useEffect(() => {
-        fetchHotels();
-        fetchManagers();
-    }, []);
-
-    const handleDelete = async (hotelId) => {
-        if (window.confirm('Are you sure you want to delete this hotel?')) {
-            try {
-                await api.delete(`/api/admin/hotels/${hotelId}`);
-                setHotels(hotels.filter(h => h.id !== hotelId));
-            } catch (error) {
-                console.error("Error deleting hotel:", error);
-                alert("Failed to delete hotel");
-            }
-        }
-    };
-
-    const handleAddHotel = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await api.post('/api/admin/hotels', newHotel);
-            setHotels([...hotels, response.data]);
-            setShowModal(false);
-            setNewHotel({
-                name: '',
-                location: '',
-                description: '',
-                image_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-                manager_id: managers.length > 0 ? managers[0].id : ''
-            });
-            alert("Hotel created successfully!");
-        } catch (error) {
-            console.error("Error creating hotel:", error);
-            alert("Failed to create hotel");
-        }
-    };
-
-    const handleEdit = (hotel) => {
-        alert(`Edit feature coming soon for ${hotel.name}`);
-    };
-
-    return (
-        <div className="p-6 space-y-6">
-            <h1 className="text-3xl font-extrabold text-gray-800">Hotel Management</h1>
-
-            <div className="flex justify-between items-center mb-4">
-                <p className="text-gray-600">Total Hotels: {hotels.length}</p>
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-700 transition"
-                >
-                    <Plus className="w-5 h-5 mr-1" /> Add New Hotel
-                </button>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hotel Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Manager ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
-                            {hotels.map((hotel) => (
-                                <tr key={hotel.id} className="hover:bg-gray-50 transition duration-150">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{hotel.name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{hotel.location}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{hotel.manager_id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center space-x-2">
-                                        <button onClick={() => handleEdit(hotel)} className="text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-indigo-50 transition">
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                        <button onClick={() => handleDelete(hotel.id)} className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 transition">
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Add Hotel Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
-                        <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New Hotel</h2>
-                        <form onSubmit={handleAddHotel} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Hotel Name</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    value={newHotel.name}
-                                    onChange={(e) => setNewHotel({ ...newHotel, name: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    value={newHotel.location}
-                                    onChange={(e) => setNewHotel({ ...newHotel, location: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    value={newHotel.description}
-                                    onChange={(e) => setNewHotel({ ...newHotel, description: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Manager</label>
-                                <select
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    value={newHotel.manager_id}
-                                    onChange={(e) => setNewHotel({ ...newHotel, manager_id: e.target.value })}
-                                    required
-                                >
-                                    <option value="">Select a Manager</option>
-                                    {managers.map(mgr => (
-                                        <option key={mgr.id} value={mgr.id}>
-                                            {mgr.full_name || mgr.email} (ID: {mgr.id})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="flex justify-end space-x-3 mt-6">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowModal(false)}
-                                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                    Create Hotel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-// --- 3. User Management Table ---
-
-const UserManagementTable = () => {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
-    const [newUser, setNewUser] = useState({
-        full_name: '',
-        email: '',
-        password: '',
-        role: 'manager'
-    });
-
-    const fetchUsers = async () => {
-        try {
-            const response = await api.get('/api/admin/users');
-            setUsers(response.data);
-        } catch (error) {
-            console.error("Error fetching users:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const handleDelete = async (userId) => {
-        if (window.confirm('Are you sure you want to delete this user?')) {
-            try {
-                await api.delete(`/api/admin/users/${userId}`);
-                setUsers(users.filter(u => u.id !== userId));
-            } catch (error) {
-                console.error("Error deleting user:", error);
-                alert("Failed to delete user");
-            }
-        }
-    };
-
-    const handleAddUser = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await api.post('/api/admin/users', newUser);
-            setUsers([...users, response.data]);
-            setShowModal(false);
-            setNewUser({ full_name: '', email: '', password: '', role: 'manager' });
-            alert("User created successfully!");
-        } catch (error) {
-            console.error("Error creating user:", error);
-            alert(error.response?.data?.detail || "Failed to create user");
-        }
-    };
-
-    const handleEdit = (user) => {
-        alert(`Edit feature coming soon for ${user.full_name}`);
-    };
-
-    return (
-        <div className="p-6 ">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-extrabold text-gray-800">User Management</h1>
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-700 transition"
-                >
-                    <Plus className="w-5 h-5 mr-1" /> Add New User
-                </button>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
-                            {users.map((user) => (
-                                <tr key={user.id} className="hover:bg-gray-50 transition duration-150">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.full_name || 'N/A'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-semibold">{user.role}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                            {user.is_active ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center space-x-2">
-                                        <button onClick={() => handleEdit(user)} className="text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-indigo-50 transition">
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                        <button onClick={() => handleDelete(user.id)} className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 transition">
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Add User Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
-                        <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New User</h2>
-                        <form onSubmit={handleAddUser} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    value={newUser.full_name}
-                                    onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input
-                                    type="email"
-                                    required
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    value={newUser.email}
-                                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                <input
-                                    type="password"
-                                    required
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    value={newUser.password}
-                                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                                <select
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    value={newUser.role}
-                                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                                >
-                                    <option value="manager">Manager</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="guest">Guest</option>
-                                </select>
-                            </div>
-                            <div className="flex justify-end space-x-3 mt-6">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowModal(false)}
-                                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                    Create User
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
 
 // --- 4. Global Settings Form ---
 
@@ -650,6 +261,7 @@ const Sidebar = ({ currentPage, setCurrentPage }) => {
     const navItems = [
         { name: 'Dashboard', icon: LayoutDashboard, component: 'Dashboard' },
         { name: 'Hotels', icon: Hotel, component: 'AllHotelsPage' },
+        { name: 'Rooms', icon: Bed, component: 'AllRoomsPage' },
         { name: 'Users', icon: Users, component: 'UserManagementTable' },
         { name: 'Settings', icon: Settings, component: 'GlobalSettingsForm' },
     ];
@@ -696,6 +308,8 @@ const renderPage = (pageName) => {
     switch (pageName) {
         case 'AllHotelsPage':
             return <AllHotelsPage />;
+        case 'AllRoomsPage':
+            return <AllRoomsPage />;
         case 'UserManagementTable':
             return <UserManagementTable />;
         case 'GlobalSettingsForm':
@@ -786,6 +400,7 @@ const App = () => {
                     {[
                         { name: 'Dashboard', icon: LayoutDashboard, component: 'Dashboard' },
                         { name: 'Hotels', icon: Hotel, component: 'AllHotelsPage' },
+                        { name: 'Rooms', icon: Bed, component: 'AllRoomsPage' },
                         { name: 'Users', icon: Users, component: 'UserManagementTable' },
                         { name: 'Settings', icon: Settings, component: 'GlobalSettingsForm' },
                     ].map((item) => {
