@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaGoogle, FaFacebookF, FaEnvelope } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { register } from '../../api/auth';
 
 const RegisterForm = ({ setAuthView }) => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,9 @@ const RegisterForm = ({ setAuthView }) => {
     password: '',
     confirmPassword: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,13 +23,34 @@ const RegisterForm = ({ setAuthView }) => {
     }));
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    // TODO: Add form validation and registration logic
-    console.log('Registration data:', formData);
-    // Simulate registration success
-    alert('Registration successful!');
-    setAuthView('login');
+    setError('');
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await register(formData);
+      alert('Registration successful! Please login.');
+      setAuthView('login');
+    } catch (err) {
+      console.error('Registration error:', err);
+      const errorMessage = err.response?.data?.detail || err.message || 'Registration failed. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -62,6 +87,11 @@ const RegisterForm = ({ setAuthView }) => {
 
       {/* Email Registration Form */}
       <form onSubmit={handleRegister} className="space-y-4">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
@@ -155,9 +185,10 @@ const RegisterForm = ({ setAuthView }) => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Create Account
+          {loading ? 'Creating Account...' : 'Create Account'}
         </button>
 
         <p className="text-center text-sm text-gray-600 mt-4">
