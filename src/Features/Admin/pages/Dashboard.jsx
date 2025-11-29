@@ -7,7 +7,7 @@ const __app_id = typeof window !== 'undefined' && typeof window.__app_id !== 'un
 
 // Mock Firebase Imports (Required by instructions, even if logic is simplified)
 const mockAuth = { currentUser: { uid: 'mock-admin-user-123' } };
-const mockDb = { }; 
+const mockDb = {};
 
 // Helper function to get status badge styling
 const getStatusBadge = (status) => {
@@ -27,138 +27,221 @@ const getStatusBadge = (status) => {
     }
 };
 
-// --- 1. Dashboard Component (Based on User's Code) ---
+import api from '../../../api/auth'; // Using the axios instance from auth.js which handles tokens
 
 const Dashboard = () => {
-  // Sample data
-  const stats = [
-    { 
-      title: 'Total Hotels', 
-      value: '12', 
-      icon: <Hotel className="w-10 h-10 opacity-80" />,
-      gradient: 'from-blue-500 to-blue-600',
-      textColor: 'text-blue-100'
-    },
-    { 
-      title: 'Total Bookings', 
-      value: '284', 
-      icon: <Calendar className="w-10 h-10 opacity-80" />,
-      gradient: 'from-green-500 to-green-600',
-      textColor: 'text-green-100'
-    },
-    { 
-      title: 'Total Revenue', 
-      value: '$24,580', 
-      icon: <DollarSign className="w-10 h-10 opacity-80" />,
-      gradient: 'from-purple-500 to-purple-600',
-      textColor: 'text-purple-100'
-    },
-    { 
-      title: 'Active Users', 
-      value: '1,243', 
-      icon: <Users className="w-10 h-10 opacity-80" />,
-      gradient: 'from-amber-500 to-amber-600',
-      textColor: 'text-amber-100'
-    }
-  ];
+    const [statsData, setStatsData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  const recentBookings = [
-    { id: 1, hotel: 'Grand Plaza Hotel', guest: 'John Doe', checkIn: '2025-10-20', checkOut: '2025-10-25', amount: 1250, status: 'Confirmed' },
-    { id: 2, hotel: 'Seaside Resort', guest: 'Jane Smith', checkIn: '2025-10-18', checkOut: '2025-10-22', amount: 720, status: 'Pending' },
-    { id: 3, hotel: 'City Inn', guest: 'Bob Johnson', checkIn: '2025-10-15', checkOut: '2025-10-16', amount: 180, status: 'Confirmed' },
-  ];
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await api.get('/api/admin/dashboard');
+                setStatsData(response.data);
+            } catch (error) {
+                console.error("Error fetching admin stats:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
 
-  return (
-    <div className=" ml p-6 space-y-6 ">
-      <h1 className="text-3xl font-extrabold text-gray-800">Admin Dashboard</h1>
-      
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <div key={index} className={`bg-linear-to-br ${stat.gradient} text-white p-6 rounded-xl shadow-xl transition transform hover:scale-[1.02] cursor-pointer`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className={`${stat.textColor} text-sm font-medium uppercase`}>{stat.title}</p>
-                <p className="text-4xl font-bold mt-1">{stat.value}</p>
-              </div>
-              {stat.icon}
-            </div>
-          </div>
-        ))}
-      </div>
+    // Sample data fallback or use real data
+    const stats = [
+        {
+            title: 'Total Hotels',
+            value: statsData ? statsData.total_hotels : '...',
+            icon: <Hotel className="w-10 h-10 opacity-80" />,
+            gradient: 'from-blue-500 to-blue-600',
+            textColor: 'text-blue-100'
+        },
+        {
+            title: 'Total Bookings',
+            value: statsData ? statsData.total_bookings : '...',
+            icon: <Calendar className="w-10 h-10 opacity-80" />,
+            gradient: 'from-green-500 to-green-600',
+            textColor: 'text-green-100'
+        },
+        {
+            title: 'Total Revenue',
+            value: statsData ? `$${statsData.revenue.toLocaleString()}` : '...',
+            icon: <DollarSign className="w-10 h-10 opacity-80" />,
+            gradient: 'from-purple-500 to-purple-600',
+            textColor: 'text-purple-100'
+        },
+        {
+            title: 'Active Users',
+            value: statsData ? statsData.active_users : '...',
+            icon: <Users className="w-10 h-10 opacity-80" />,
+            gradient: 'from-amber-500 to-amber-600',
+            textColor: 'text-amber-100'
+        }
+    ];
 
-      {/* Recent Bookings */}
-      <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            <Calendar className="w-5 h-5 mr-2 text-blue-500" /> Recent Bookings
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hotel</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Guest</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check-in</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check-out</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {recentBookings.map((booking) => (
-                  <tr key={booking.id} className="hover:bg-gray-50 transition duration-150">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{booking.hotel}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.guest}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.checkIn}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.checkOut}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">${booking.amount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(booking.status)}`}>
-                        {booking.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-indigo-600 hover:text-indigo-900 transition">View</button>
-                    </td>
-                  </tr>
+    const recentBookings = statsData ? statsData.recent_bookings : [];
+
+    return (
+        <div className=" ml p-6 space-y-6 ">
+            <h1 className="text-3xl font-extrabold text-gray-800">Admin Dashboard</h1>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {stats.map((stat, index) => (
+                    <div key={index} className={`bg-linear-to-br ${stat.gradient} text-white p-6 rounded-xl shadow-xl transition transform hover:scale-[1.02] cursor-pointer`}>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className={`${stat.textColor} text-sm font-medium uppercase`}>{stat.title}</p>
+                                <p className="text-4xl font-bold mt-1">{stat.value}</p>
+                            </div>
+                            {stat.icon}
+                        </div>
+                    </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-4 text-right">
-            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center justify-end float-right">
-              View all bookings <span className="ml-1">→</span>
-            </button>
-          </div>
+            </div>
+
+            {/* Recent Bookings */}
+            <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
+                <div className="p-6">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <Calendar className="w-5 h-5 mr-2 text-blue-500" /> Recent Bookings
+                    </h2>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hotel</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Guest</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check-in</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check-out</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-100">
+                                {recentBookings.map((booking) => (
+                                    <tr key={booking.id} className="hover:bg-gray-50 transition duration-150">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{booking.hotel}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.guest}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.checkIn}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.checkOut}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">${booking.amount}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(booking.status)}`}>
+                                                {booking.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button className="text-indigo-600 hover:text-indigo-900 transition">View</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="mt-4 text-right">
+                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center justify-end float-right">
+                            View all bookings <span className="ml-1">→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 // --- 2. All Hotels Page ---
 
 const AllHotelsPage = () => {
-    const [hotels, setHotels] = useState([
-        { id: 1, name: 'Grand Plaza Hotel', city: 'New York', rooms: 150, rating: 4.5, managerId: 'mgr_001', status: 'Active' },
-        { id: 2, name: 'Seaside Resort', city: 'Miami', rooms: 90, rating: 4.8, managerId: 'mgr_002', status: 'Active' },
-        { id: 3, name: 'Mountain View Lodge', city: 'Denver', rooms: 45, rating: 4.2, managerId: 'mgr_003', status: 'Inactive' },
-    ]);
+    const [hotels, setHotels] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [managers, setManagers] = useState([]);
+    const [newHotel, setNewHotel] = useState({
+        name: '',
+        location: '',
+        description: '',
+        image_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        manager_id: ''
+    });
 
-    const handleAction = (action, hotel) => {
-        console.log(`${action} hotel: ${hotel.name}`);
-        // In a real app, this would be a Firebase call
+    const fetchHotels = async () => {
+        try {
+            const response = await api.get('/api/admin/hotels');
+            setHotels(response.data);
+        } catch (error) {
+            console.error("Error fetching hotels:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchManagers = async () => {
+        try {
+            const response = await api.get('/api/admin/users');
+            // Filter only managers
+            const managerList = response.data.filter(u => u.role === 'manager');
+            setManagers(managerList);
+            if (managerList.length > 0) {
+                setNewHotel(prev => ({ ...prev, manager_id: managerList[0].id }));
+            }
+        } catch (error) {
+            console.error("Error fetching managers:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchHotels();
+        fetchManagers();
+    }, []);
+
+    const handleDelete = async (hotelId) => {
+        if (window.confirm('Are you sure you want to delete this hotel?')) {
+            try {
+                await api.delete(`/api/admin/hotels/${hotelId}`);
+                setHotels(hotels.filter(h => h.id !== hotelId));
+            } catch (error) {
+                console.error("Error deleting hotel:", error);
+                alert("Failed to delete hotel");
+            }
+        }
+    };
+
+    const handleAddHotel = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await api.post('/api/admin/hotels', newHotel);
+            setHotels([...hotels, response.data]);
+            setShowModal(false);
+            setNewHotel({
+                name: '',
+                location: '',
+                description: '',
+                image_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                manager_id: managers.length > 0 ? managers[0].id : ''
+            });
+            alert("Hotel created successfully!");
+        } catch (error) {
+            console.error("Error creating hotel:", error);
+            alert("Failed to create hotel");
+        }
+    };
+
+    const handleEdit = (hotel) => {
+        alert(`Edit feature coming soon for ${hotel.name}`);
     };
 
     return (
         <div className="p-6 space-y-6">
             <h1 className="text-3xl font-extrabold text-gray-800">Hotel Management</h1>
-            
+
             <div className="flex justify-between items-center mb-4">
                 <p className="text-gray-600">Total Hotels: {hotels.length}</p>
-                <button className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-700 transition">
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-700 transition"
+                >
                     <Plus className="w-5 h-5 mr-1" /> Add New Hotel
                 </button>
             </div>
@@ -169,30 +252,22 @@ const AllHotelsPage = () => {
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hotel Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">City</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rooms</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rating</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Manager ID</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
                             {hotels.map((hotel) => (
                                 <tr key={hotel.id} className="hover:bg-gray-50 transition duration-150">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{hotel.name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{hotel.city}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{hotel.rooms}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{hotel.rating} / 5</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(hotel.status)}`}>
-                                            {hotel.status}
-                                        </span>
-                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{hotel.location}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{hotel.manager_id}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center space-x-2">
-                                        <button onClick={() => handleAction('Edit', hotel)} className="text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-indigo-50 transition">
+                                        <button onClick={() => handleEdit(hotel)} className="text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-indigo-50 transition">
                                             <Edit className="w-4 h-4" />
                                         </button>
-                                        <button onClick={() => handleAction('Delete', hotel)} className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 transition">
+                                        <button onClick={() => handleDelete(hotel.id)} className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 transition">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </td>
@@ -202,6 +277,76 @@ const AllHotelsPage = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Add Hotel Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
+                        <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New Hotel</h2>
+                        <form onSubmit={handleAddHotel} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Hotel Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={newHotel.name}
+                                    onChange={(e) => setNewHotel({ ...newHotel, name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                <input
+                                    type="text"
+                                    required
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={newHotel.location}
+                                    onChange={(e) => setNewHotel({ ...newHotel, location: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={newHotel.description}
+                                    onChange={(e) => setNewHotel({ ...newHotel, description: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Manager</label>
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={newHotel.manager_id}
+                                    onChange={(e) => setNewHotel({ ...newHotel, manager_id: e.target.value })}
+                                    required
+                                >
+                                    <option value="">Select a Manager</option>
+                                    {managers.map(mgr => (
+                                        <option key={mgr.id} value={mgr.id}>
+                                            {mgr.full_name || mgr.email} (ID: {mgr.id})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    Create Hotel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -209,22 +354,73 @@ const AllHotelsPage = () => {
 // --- 3. User Management Table ---
 
 const UserManagementTable = () => {
-    const [users, setUsers] = useState([
-        { id: 'user_001', name: 'John Doe', role: 'Customer', email: 'john@example.com', status: 'Active' },
-        { id: 'user_002', name: 'Hotel Manager A', role: 'Manager', email: 'mgr_a@hotel.com', status: 'Active' },
-        { id: 'user_003', name: 'Jane Smith', role: 'Customer', email: 'jane@example.com', status: 'Banned' },
-        { id: 'user_004', name: 'Admin User', role: 'Admin', email: 'admin@system.com', status: 'Active' },
-    ]);
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [newUser, setNewUser] = useState({
+        full_name: '',
+        email: '',
+        password: '',
+        role: 'manager'
+    });
 
-    const handleAction = (action, user) => {
-        console.log(`${action} user: ${user.name}`);
-        // In a real app, this would be a Firebase call
+    const fetchUsers = async () => {
+        try {
+            const response = await api.get('/api/admin/users');
+            setUsers(response.data);
+        } catch (error) {
+            console.error("Error fetching users:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const handleDelete = async (userId) => {
+        if (window.confirm('Are you sure you want to delete this user?')) {
+            try {
+                await api.delete(`/api/admin/users/${userId}`);
+                setUsers(users.filter(u => u.id !== userId));
+            } catch (error) {
+                console.error("Error deleting user:", error);
+                alert("Failed to delete user");
+            }
+        }
+    };
+
+    const handleAddUser = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await api.post('/api/admin/users', newUser);
+            setUsers([...users, response.data]);
+            setShowModal(false);
+            setNewUser({ full_name: '', email: '', password: '', role: 'manager' });
+            alert("User created successfully!");
+        } catch (error) {
+            console.error("Error creating user:", error);
+            alert(error.response?.data?.detail || "Failed to create user");
+        }
+    };
+
+    const handleEdit = (user) => {
+        alert(`Edit feature coming soon for ${user.full_name}`);
     };
 
     return (
         <div className="p-6 ">
-            <h1 className="text-3xl font-extrabold text-gray-800">User Management</h1>
-            
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-extrabold text-gray-800">User Management</h1>
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-700 transition"
+                >
+                    <Plus className="w-5 h-5 mr-1" /> Add New User
+                </button>
+            </div>
+
             <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -242,19 +438,19 @@ const UserManagementTable = () => {
                             {users.map((user) => (
                                 <tr key={user.id} className="hover:bg-gray-50 transition duration-150">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.name}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.full_name || 'N/A'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-semibold">{user.role}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(user.status)}`}>
-                                            {user.status}
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                            {user.is_active ? 'Active' : 'Inactive'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center space-x-2">
-                                        <button onClick={() => handleAction('Edit', user)} className="text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-indigo-50 transition">
+                                        <button onClick={() => handleEdit(user)} className="text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-indigo-50 transition">
                                             <Edit className="w-4 h-4" />
                                         </button>
-                                        <button onClick={() => handleAction('Ban', user)} className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 transition">
+                                        <button onClick={() => handleDelete(user.id)} className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 transition">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </td>
@@ -264,6 +460,74 @@ const UserManagementTable = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Add User Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
+                        <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New User</h2>
+                        <form onSubmit={handleAddUser} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={newUser.full_name}
+                                    onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input
+                                    type="email"
+                                    required
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={newUser.email}
+                                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                <input
+                                    type="password"
+                                    required
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={newUser.password}
+                                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={newUser.role}
+                                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                                >
+                                    <option value="manager">Manager</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="guest">Guest</option>
+                                </select>
+                            </div>
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    Create User
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -277,7 +541,7 @@ const GlobalSettingsForm = () => {
         emailEnabled: true,
         supportEmail: 'support@system.com'
     });
-    
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setSettings(prev => ({
@@ -290,7 +554,7 @@ const GlobalSettingsForm = () => {
         e.preventDefault();
         console.log('Saving Global Settings:', settings);
         // In a real app, this would be a Firebase call to update a config document
-        alert('Settings Saved Successfully!'); 
+        alert('Settings Saved Successfully!');
         // NOTE: Using a simple JS alert for demonstration since custom modals are complex
     };
 
@@ -406,11 +670,10 @@ const Sidebar = ({ currentPage, setCurrentPage }) => {
                         <button
                             key={item.name}
                             onClick={() => setCurrentPage(item.component)}
-                            className={`flex items-center w-full p-3 rounded-lg transition-all duration-200 ${
-                                isActive 
-                                    ? 'bg-blue-600 text-white shadow-lg transform -translate-x-1' 
-                                    : 'text-gray-300 hover:bg-gray-800 hover:text-white hover:translate-x-1'
-                            }`}
+                            className={`flex items-center w-full p-3 rounded-lg transition-all duration-200 ${isActive
+                                ? 'bg-blue-600 text-white shadow-lg transform -translate-x-1'
+                                : 'text-gray-300 hover:bg-gray-800 hover:text-white hover:translate-x-1'
+                                }`}
                         >
                             <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : 'text-blue-400'}`} />
                             <span className="font-medium">{item.name}</span>
@@ -484,7 +747,7 @@ const App = () => {
         <div className="flex min-h-screen bg-gray-50 font-sans text-gray-800">
             {/* Mobile menu button */}
             <div className="fixed top-4 left-4 z-50 md:hidden">
-                <button 
+                <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     className="p-2 rounded-md bg-gray-900 text-white shadow-lg md:hidden"
                 >
@@ -501,7 +764,7 @@ const App = () => {
             <div className={`fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden ${isSidebarOpen ? 'block' : 'hidden'}`}
                 onClick={() => setIsSidebarOpen(false)}>
             </div>
-            
+
             <div className={`w-64 bg-gray-900 text-white flex flex-col h-screen fixed md:static z-30 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 <div className="p-6 text-2xl font-bold tracking-wider border-b border-gray-800 text-blue-400 flex items-center justify-between">
                     <div className="flex items-center">
@@ -510,7 +773,7 @@ const App = () => {
                         </span>
                         HBMS Admin
                     </div>
-                    <button 
+                    <button
                         onClick={() => setIsSidebarOpen(false)}
                         className="md:hidden text-gray-400 hover:text-white"
                     >
@@ -535,11 +798,10 @@ const App = () => {
                                     setCurrentPage(item.component);
                                     setIsSidebarOpen(false);
                                 }}
-                                className={`flex items-center w-full p-3 rounded-lg transition-all duration-200 ${
-                                    isActive 
-                                        ? 'bg-blue-600 text-white shadow-lg' 
-                                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                                }`}
+                                className={`flex items-center w-full p-3 rounded-lg transition-all duration-200 ${isActive
+                                    ? 'bg-blue-600 text-white shadow-lg'
+                                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                                    }`}
                             >
                                 <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : 'text-blue-400'}`} />
                                 <span className="font-medium">{item.name}</span>
@@ -552,7 +814,7 @@ const App = () => {
                     <div className="text-gray-600">App ID: {__app_id}</div>
                 </div>
             </div>
-            
+
             <div className="flex-1 transition-all duration-300 w-full">
                 {/* Top Navigation */}
                 <header className="bg-white shadow-sm sticky top-0 z-10">
@@ -560,7 +822,7 @@ const App = () => {
                         <h1 className="text-2xl font-bold text-gray-800 ml-4 md:ml-0">
                             {currentPage.replace(/([A-Z])/g, ' $1').trim()}
                         </h1>
-                        
+
                         <div className="flex items-center space-x-4">
                             {/* Notifications */}
                             <div className="relative">
@@ -573,7 +835,7 @@ const App = () => {
                                     )}
                                 </button>
                             </div>
-                            
+
                             {/* User Profile */}
                             <div className="flex items-center space-x-2">
                                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">

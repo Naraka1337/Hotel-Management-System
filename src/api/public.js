@@ -24,3 +24,9 @@ export const createBooking = async (bookingData) => {
   return response.data;
 };
 
+// Get user bookings
+export const getBookings = async () => {
+  const response = await api.get('/api/public/bookings');
+  return response.data;
+};
+

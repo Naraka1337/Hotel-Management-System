@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // import ProtectedRoute from './components/Common/Layout/ProtectedRoute';
 // login register forgot password
 import AuthLayout from './components/Auth/AuthLayout.jsx';
+import { AuthProvider } from './context/AuthContext';
 
 // Public Pages (accessible to everyone)
 import HomePage from './Features/Public/Pages/HomePage.jsx';
@@ -13,6 +14,7 @@ import PublicLayout from './Features/Public/layouts/PublicLayout.jsx';
 import HotelsPage from './Features/Public/Pages/HotelsPage.jsx';
 import AboutPage from './Features/Public/Pages/AboutPage.jsx';
 import ContactPage from './Features/Public/Pages/ContactPage.jsx';
+import MyBookingsPage from './Features/Public/Pages/MyBookingsPage.jsx';
 
 
 // Manager Pages
@@ -42,44 +44,43 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        {/* ======================= 1. PUBLIC ROUTES (Accessible to all) ======================= */}
-        <Route element={<PublicLayout />} >
-          <Route path="/" element={<HomePage />} />
-          <Route path='/HotelsPage' element={<HotelsPage />} />
-          <Route path='/about' element={<AboutPage />} />
-          <Route path='/contact' element={<ContactPage />} />
-          <Route path='/Review' element={<HotelDetails />} />
-          
-          
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* ======================= 1. PUBLIC ROUTES (Accessible to all) ======================= */}
+          <Route element={<PublicLayout />} >
+            <Route path="/" element={<HomePage />} />
+            <Route path='/HotelsPage' element={<HotelsPage />} />
+            <Route path='/about' element={<AboutPage />} />
+            <Route path='/contact' element={<ContactPage />} />
+            <Route path='/Review' element={<HotelDetails />} />
+            <Route path='/my-bookings' element={<MyBookingsPage />} />
+          </Route>
+
+          {/* ======================= AUTH ROUTES ======================= */}
+          <Route path="/login" element={<AuthLayout />} />
+          <Route path="/register" element={<AuthLayout />} />
+          <Route path="/forgot-password" element={<AuthLayout />} />
 
 
-        </Route>
+          {/* ======================= 2. MANAGER ROUTES (Requires 'manager' role) ======================= */}
+          <Route element={<ManagerLayout />}>
+            <Route path="/manager" element={<ManagerDashboard />} />
+            <Route path="/manager/rooms" element={<ManageRoomsPage />} />
+            <Route path="/manager/bookings" element={<BookingsPage />} />
+            <Route path="/manager/revenue" element={<RevenuePage />} />
+            <Route path="/manager/settings" element={<SettingsPage />} />
+          </Route>
 
-        {/* ======================= AUTH ROUTES ======================= */}
-        <Route path="/login" element={<AuthLayout />} />
-        <Route path="/register" element={<AuthLayout />} />
-        <Route path="/forgot-password" element={<AuthLayout />} />
-        
 
-        {/* ======================= 2. MANAGER ROUTES (Requires 'manager' role) ======================= */}
-        <Route element={<ManagerLayout />}>
-          <Route path="/manager" element={<ManagerDashboard />} />
-          <Route path="/manager/rooms" element={<ManageRoomsPage />} />
-          <Route path="/manager/bookings" element={<BookingsPage />} />
-          <Route path="/manager/revenue" element={<RevenuePage />} />
-          <Route path="/manager/settings" element={<SettingsPage />} />
-        </Route>
-          
+          {/* ======================= 3. ADMIN ROUTES (Requires 'admin' role) ======================= */}
+          <Route path='/admin' element={<AdminDashboard />} />
 
-        {/* ======================= 3. ADMIN ROUTES (Requires 'admin' role) ======================= */}
-        <Route path='/admin' element={ <AdminDashboard /> } />
-
-        {/* ======================= 4. FALLBACK ROUTE ======================= */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
+          {/* ======================= 4. FALLBACK ROUTE ======================= */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

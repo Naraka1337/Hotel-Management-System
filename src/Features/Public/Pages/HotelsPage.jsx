@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Star, MapPin, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getHotels } from '../../../api/public';
+import { getHotels, getHotelRooms, createBooking } from '../../../api/public';
 
 function HotelsPage() {
-  const [userRole, setUserRole] = useState('user'); 
+  const [userRole, setUserRole] = useState('user');
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [bookingStep, setBookingStep] = useState('search');
   const [checkInDate, setCheckInDate] = useState('');
@@ -12,7 +12,9 @@ function HotelsPage() {
   const [dateError, setDateError] = useState('');
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+  const [rooms, setRooms] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+
   // Set minimum date to today
   const today = new Date().toISOString().split('T')[0];
 
@@ -24,7 +26,6 @@ function HotelsPage() {
         setHotels(data);
       } catch (error) {
         console.error('Error fetching hotels:', error);
-        // Fallback to empty array if API fails
         setHotels([]);
       } finally {
         setLoading(false);
@@ -33,14 +34,44 @@ function HotelsPage() {
     fetchHotels();
   }, []);
 
-  //
-  // but we'll keep it here for completeness.
-  const bookings = [
-    { id: 1, hotel: 'Grand Plaza Hotel', guest: 'John Doe', checkIn: '2025-10-20', checkOut: '2025-10-25', amount: 1250, status: 'Confirmed' },
-    { id: 2, hotel: 'Seaside Resort', guest: 'Jane Smith', checkIn: '2025-10-18', checkOut: '2025-10-22', amount: 720, status: 'Pending' },
-    { id: 3, hotel: 'Mountain View Lodge', guest: 'Bob Johnson', checkIn: '2025-11-01', checkOut: '2025-11-05', amount: 1600, status: 'Confirmed' },
-  ];
-  
+  const handleBookClick = async (hotel) => {
+    setSelectedHotel(hotel);
+    try {
+      const hotelRooms = await getHotelRooms(hotel.id);
+      setRooms(hotelRooms);
+      // Auto-select the first room for now (simplification)
+      if (hotelRooms.length > 0) {
+        setSelectedRoom(hotelRooms[0]);
+      }
+      setBookingStep('book');
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
+      alert("Could not load rooms for this hotel.");
+    }
+  };
+
+  const handlePayment = async () => {
+    if (!selectedRoom) {
+      alert("No room selected/available.");
+      return;
+    }
+
+    try {
+      await createBooking({
+        room_id: selectedRoom.id,
+        check_in: checkInDate,
+        check_out: checkOutDate
+      });
+      alert('Payment Successful! Booking Confirmed.');
+      setBookingStep('search');
+      setSelectedHotel(null);
+      setCheckInDate('');
+      setCheckOutDate('');
+    } catch (error) {
+      console.error("Booking failed:", error);
+      alert('Booking failed. Please try again.');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -55,8 +86,8 @@ function HotelsPage() {
               </div>
               <div>
                 <label className="block text-sm mb-2">Check-in</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   min={today}
                   value={checkInDate}
                   onChange={(e) => {
@@ -65,18 +96,18 @@ function HotelsPage() {
                       setCheckOutDate('');
                     }
                   }}
-                  className="w-full p-3 rounded bg-white text-gray-800" 
+                  className="w-full p-3 rounded bg-white text-gray-800"
                 />
               </div>
               <div>
                 <label className="block text-sm mb-2">Check-out</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   min={checkInDate || today}
                   value={checkOutDate}
                   onChange={(e) => setCheckOutDate(e.target.value)}
                   disabled={!checkInDate}
-                  className={`w-full p-3 rounded bg-white text-gray-800 ${!checkInDate ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                  className={`w-full p-3 rounded bg-white text-gray-800 ${!checkInDate ? 'opacity-50 cursor-not-allowed' : ''}`}
                 />
               </div>
               {dateError && (
@@ -132,12 +163,12 @@ function HotelsPage() {
                         <span className="text-2xl font-bold text-blue-600">${hotel.price_per_night || 'N/A'}</span>
                         <span className="text-gray-600 text-sm">/night</span>
                       </div>
-                      <Link 
-                        to={`/Review/${hotel.id}`}
+                      <button
+                        onClick={() => handleBookClick(hotel)}
                         className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
                       >
-                        View Details
-                      </Link>
+                        Book Now
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -157,7 +188,8 @@ function HotelsPage() {
             <div className="bg-blue-50 p-4 rounded-lg mb-6">
               <h3 className="font-bold text-lg">{selectedHotel.name}</h3>
               <p className="text-gray-600">{selectedHotel.city || selectedHotel.address || selectedHotel.location}</p>
-              <p className="text-2xl font-bold text-blue-600 mt-2">${selectedHotel.price_per_night || selectedHotel.price || 'N/A'}/night</p>
+              <p className="text-2xl font-bold text-blue-600 mt-2">${selectedRoom ? selectedRoom.price : (selectedHotel.price_per_night || 'N/A')}/night</p>
+              {selectedRoom && <p className="text-sm text-gray-500">Room Type: {selectedRoom.type}</p>}
             </div>
             <div className="space-y-4">
               <div>
@@ -171,8 +203,8 @@ function HotelsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2">Check-in</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     min={today}
                     value={checkInDate}
                     onChange={(e) => {
@@ -181,18 +213,18 @@ function HotelsPage() {
                         setCheckOutDate('');
                       }
                     }}
-                    className="w-full p-3 border rounded-lg" 
+                    className="w-full p-3 border rounded-lg"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2">Check-out</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     min={checkInDate || today}
                     value={checkOutDate}
                     onChange={(e) => setCheckOutDate(e.target.value)}
                     disabled={!checkInDate}
-                    className={`w-full p-3 border rounded-lg ${!checkInDate ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                    className={`w-full p-3 border rounded-lg ${!checkInDate ? 'opacity-50 cursor-not-allowed' : ''}`}
                   />
                 </div>
                 {dateError && (
@@ -201,7 +233,7 @@ function HotelsPage() {
                   </div>
                 )}
               </div>
-              <button 
+              <button
                 onClick={() => {
                   if (!checkInDate || !checkOutDate) {
                     setDateError('Please select both check-in and check-out dates');
@@ -250,25 +282,24 @@ function HotelsPage() {
               </div>
               <div className="bg-gray-50 p-4 rounded-lg mt-6">
                 <div className="flex justify-between mb-2">
-                  <span>5 nights</span>
-                  {/* NOTE: You should calculate nights based on check-in/out dates, but using 5 for demo */}
-                  <span>${selectedHotel.price * 5}</span>
+                  <span>
+                    {checkInDate && checkOutDate ? (new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24) : 0} nights
+                  </span>
+                  <span>${selectedRoom ? selectedRoom.price * ((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24)) : 0}</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span>Service fee</span>
-                  <span>${50}</span>
+                  <span>$50</span>
                 </div>
                 <div className="border-t pt-2 mt-2 flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span className="text-blue-600">${selectedHotel.price * 5 + 50}</span>
+                  <span className="text-blue-600">
+                    ${(selectedRoom ? selectedRoom.price * ((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24)) : 0) + 50}
+                  </span>
                 </div>
               </div>
-              <button 
-                onClick={() => {
-                  alert('Payment Successful! Booking Confirmed.');
-                  setBookingStep('search');
-                  setSelectedHotel(null);
-                }}
+              <button
+                onClick={handlePayment}
                 className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
               >
                 Pay Now

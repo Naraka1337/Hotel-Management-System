@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Bed, Wifi, Tv, Coffee, Wind, Users, DollarSign } from 'lucide-react';
+import api from '../../../api/auth';
 
 const roomTypes = [
-  { id: 'single', name: 'Single Room' },
-  { id: 'double', name: 'Double Room' },
-  { id: 'deluxe', name: 'Deluxe Room' },
-  { id: 'suite', name: 'Suite' },
-  { id: 'executive', name: 'Executive Suite' }
+  { id: 'Single', name: 'Single Room' },
+  { id: 'Double', name: 'Double Room' },
+  { id: 'Suite', name: 'Suite' },
+  { id: 'Deluxe', name: 'Deluxe Room' },
+  { id: 'Executive', name: 'Executive Suite' }
 ];
 
 const roomAmenities = [
@@ -18,27 +19,41 @@ const roomAmenities = [
 
 const initialRoomData = {
   id: '',
-  roomNumber: '',
-  type: 'single',
+  room_number: '',
+  type: 'Single',
   price: '',
-  capacity: 1,
-  amenities: [],
-  status: 'available',
-  description: ''
+  description: '',
+  is_available: true
 };
 
 const ManageRoomsPage = () => {
-  const [rooms, setRooms] = useState([
-    { id: '1', roomNumber: '101', type: 'single', price: 99, capacity: 1, amenities: ['wifi', 'tv'], status: 'available', description: 'Cozy single room with city view' },
-    { id: '2', roomNumber: '201', type: 'double', price: 149, capacity: 2, amenities: ['wifi', 'tv', 'ac'], status: 'occupied', description: 'Spacious double room' },
-    { id: '3', roomNumber: '301', type: 'suite', price: 299, capacity: 4, amenities: ['wifi', 'tv', 'ac', 'breakfast'], status: 'maintenance', description: 'Luxury suite with jacuzzi' },
-  ]);
-
+  const [rooms, setRooms] = useState([]);
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentRoom, setCurrentRoom] = useState(initialRoomData);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // Fetch Data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [roomsRes, hotelsRes] = await Promise.all([
+          api.get('/api/manager/rooms'),
+          api.get('/api/manager/hotels')
+        ]);
+        setRooms(roomsRes.data);
+        setHotels(hotelsRes.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -48,41 +63,63 @@ const ManageRoomsPage = () => {
     }));
   };
 
-  const handleAmenityChange = (amenityId) => {
-    setCurrentRoom(prev => ({
-      ...prev,
-      amenities: prev.amenities.includes(amenityId)
-        ? prev.amenities.filter(id => id !== amenityId)
-        : [...prev.amenities, amenityId]
-    }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditMode) {
-      setRooms(rooms.map(room => 
-        room.id === currentRoom.id ? { ...currentRoom, price: Number(currentRoom.price) } : room
-      ));
-    } else {
-      const newRoom = {
-        ...currentRoom,
-        id: Date.now().toString(),
-        price: Number(currentRoom.price)
-      };
-      setRooms([...rooms, newRoom]);
+
+    // Ensure we have a hotel to assign to
+    if (hotels.length === 0) {
+      alert("You need to be assigned to a hotel first!");
+      return;
     }
-    handleCloseModal();
+    const hotelId = hotels[0].id; // Default to first hotel for now
+
+    const payload = {
+      room_number: currentRoom.room_number,
+      type: currentRoom.type,
+      price: Number(currentRoom.price),
+      description: currentRoom.description,
+      is_available: currentRoom.is_available
+    };
+
+    try {
+      if (isEditMode) {
+        const response = await api.put(`/api/manager/rooms/${currentRoom.id}`, payload);
+        setRooms(rooms.map(r => r.id === currentRoom.id ? response.data : r));
+        alert("Room updated successfully!");
+      } else {
+        const response = await api.post(`/api/manager/rooms?hotel_id=${hotelId}`, payload);
+        setRooms([...rooms, response.data]);
+        alert("Room created successfully!");
+      }
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error saving room:", error);
+      alert("Failed to save room. Check console for details.");
+    }
   };
 
   const handleEdit = (room) => {
-    setCurrentRoom(room);
+    setCurrentRoom({
+      id: room.id,
+      room_number: room.room_number,
+      type: room.type,
+      price: room.price,
+      description: room.description || '',
+      is_available: room.is_available
+    });
     setIsEditMode(true);
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this room?')) {
-      setRooms(rooms.filter(room => room.id !== id));
+      try {
+        await api.delete(`/api/manager/rooms/${id}`);
+        setRooms(rooms.filter(room => room.id !== id));
+      } catch (error) {
+        console.error("Error deleting room:", error);
+        alert("Failed to delete room");
+      }
     }
   };
 
@@ -92,23 +129,11 @@ const ManageRoomsPage = () => {
     setCurrentRoom(initialRoomData);
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'available':
-        return 'bg-green-100 text-green-800';
-      case 'occupied':
-        return 'bg-red-100 text-red-800';
-      case 'maintenance':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const filteredRooms = rooms.filter(room => {
-    const matchesSearch = room.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = room.room_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       room.type.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || room.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' ||
+      (statusFilter === 'available' ? room.is_available : !room.is_available);
     return matchesSearch && matchesStatus;
   });
 
@@ -149,7 +174,6 @@ const ManageRoomsPage = () => {
               <option value="all">All Status</option>
               <option value="available">Available</option>
               <option value="occupied">Occupied</option>
-              <option value="maintenance">Maintenance</option>
             </select>
           </div>
         </div>
@@ -160,8 +184,6 @@ const ManageRoomsPage = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amenities</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -177,34 +199,15 @@ const ManageRoomsPage = () => {
                           <Bed className="h-5 w-5 text-blue-600" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">Room {room.roomNumber}</div>
+                          <div className="text-sm font-medium text-gray-900">Room {room.room_number}</div>
                           <div className="text-xs text-gray-500">{room.description}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {roomTypes.find(t => t.id === room.type)?.name || room.type}
+                        {room.type}
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1">
-                        {room.amenities.map(amenityId => {
-                          const amenity = roomAmenities.find(a => a.id === amenityId);
-                          return amenity ? (
-                            <span key={amenityId} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                              {amenity.icon}
-                              <span className="ml-1">{amenity.name}</span>
-                            </span>
-                          ) : null;
-                        })}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Users className="w-4 h-4 mr-1" />
-                        {room.capacity} {room.capacity > 1 ? 'Guests' : 'Guest'}
-                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm font-medium text-gray-900">
@@ -213,8 +216,8 @@ const ManageRoomsPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(room.status)}`}>
-                        {room.status.charAt(0).toUpperCase() + room.status.slice(1)}
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${room.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {room.is_available ? 'Available' : 'Occupied'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -235,7 +238,7 @@ const ManageRoomsPage = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
                     No rooms found. Add a new room to get started.
                   </td>
                 </tr>
@@ -265,16 +268,16 @@ const ManageRoomsPage = () => {
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="roomNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="room_number" className="block text-sm font-medium text-gray-700 mb-1">
                       Room Number *
                     </label>
                     <input
                       type="text"
-                      id="roomNumber"
-                      name="roomNumber"
+                      id="room_number"
+                      name="room_number"
                       required
                       className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      value={currentRoom.roomNumber}
+                      value={currentRoom.room_number}
                       onChange={handleInputChange}
                     />
                   </div>
@@ -322,62 +325,19 @@ const ManageRoomsPage = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="capacity" className="block text-sm font-medium text-gray-700 mb-1">
-                      Capacity *
-                    </label>
-                    <select
-                      id="capacity"
-                      name="capacity"
-                      required
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      value={currentRoom.capacity}
-                      onChange={handleInputChange}
-                    >
-                      {[1, 2, 3, 4, 5, 6].map(num => (
-                        <option key={num} value={num}>
-                          {num} {num === 1 ? 'Guest' : 'Guests'}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Amenities
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {roomAmenities.map(amenity => (
-                        <label key={amenity.id} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            checked={currentRoom.amenities.includes(amenity.id)}
-                            onChange={() => handleAmenityChange(amenity.id)}
-                          />
-                          <span className="ml-2 text-sm text-gray-700 flex items-center">
-                            {amenity.icon}
-                            <span className="ml-1">{amenity.name}</span>
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
                     <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
                       Status *
                     </label>
                     <select
                       id="status"
-                      name="status"
+                      name="is_available"
                       required
                       className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      value={currentRoom.status}
-                      onChange={handleInputChange}
+                      value={currentRoom.is_available}
+                      onChange={(e) => setCurrentRoom(prev => ({ ...prev, is_available: e.target.value === 'true' }))}
                     >
-                      <option value="available">Available</option>
-                      <option value="occupied">Occupied</option>
-                      <option value="maintenance">Maintenance</option>
+                      <option value="true">Available</option>
+                      <option value="false">Occupied</option>
                     </select>
                   </div>
 
