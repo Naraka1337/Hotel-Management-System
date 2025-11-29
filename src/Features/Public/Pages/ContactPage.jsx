@@ -1,50 +1,228 @@
-import React from 'react'
-import { Mail, Phone } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
+import { Mail, Phone, MapPin, Clock, Send, MessageCircle } from 'lucide-react';
+import { fadeIn, staggerContainer, staggerItem, scrollFadeIn } from '../../../utils/animations';
+import ScrollReveal from '../../../components/ScrollReveal';
+
 
 
 function ContactPage() {
-  return (
-    <div className="bg-white p-8 rounded-xl shadow-lg max-w-3xl mx-auto ">
-        <h1 className="text-4xl font-bold text-blue-700   ">Get in Touch</h1>
-        
-        <div className="display-flex    gap-8 mb-4 items-center" >
-            <div className="space-y-4 mt-6" >
-                <h2 className="text-2xl font-semibold text-gray-800">Contact Details</h2>
-                <div className="flex items-center space-x-3 text-gray-700">
-                    <Mail className="w-5 h-5 text-blue-500" />
-                    <span>support@luxestay.com</span>
-                </div>
-                <div className="flex items-center space-x-3 text-gray-700">
-                    <Phone className="w-5 h-5 text-blue-500" />
-                    <span>+1 (800) 555-0199</span>
-                </div>
-                <p className="text-sm text-gray-500 mt-4">We are available 24/7 to assist with bookings, modifications, and urgent support.</p>
-            </div>
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        message: ''
+    });
 
-            <form className="space-y-4 bg-gray-50 p-6 rounded-lg  mt-4">
-                <h3 className="text-xl font-semibold text-gray-800">Send Us a Message</h3>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-                    <input type="text" className="w-full p-3 border rounded-lg" placeholder="John Doe" />
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        toast.success('Thank you for your message! We will get back to you soon.');
+        setFormData({ name: '', email: '', message: '' });
+    };
+
+    const contactInfo = [
+        {
+            icon: Mail,
+            title: 'Email Us',
+            content: 'support@luxestay.com',
+            subtext: 'We reply within 24 hours'
+        },
+        {
+            icon: Phone,
+            title: 'Call Us',
+            content: '+1 (800) 555-0199',
+            subtext: 'Available 24/7'
+        },
+        {
+            icon: MapPin,
+            title: 'Visit Us',
+            content: '123 Luxury Avenue, New York, NY 10001',
+            subtext: 'Monday - Friday, 9AM - 6PM'
+        },
+        {
+            icon: Clock,
+            title: 'Business Hours',
+            content: 'Mon - Fri: 9AM - 6PM',
+            subtext: 'Weekend: 10AM - 4PM'
+        }
+    ];
+
+    return (
+        <motion.div className="min-h-screen bg-linear-to-b from-gray-50 to-white py-20 px-4" {...fadeIn}>
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="text-center mb-16">
+                    <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+                        Get in Touch
+                    </h1>
+                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                        Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                    </p>
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" className="w-full p-3 border rounded-lg" placeholder="your.email@example.com" />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                    <textarea rows="4" className="w-full p-3 border rounded-lg" placeholder="How can we help?"></textarea>
-                </div>
-                <button 
-                    type="submit" 
-                    className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+
+                {/* Contact Info Cards */}
+                <motion.div
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
+                    variants={staggerContainer}
+                    initial="initial"
+                    animate="animate"
                 >
-                    Submit Inquiry
-                </button>
-            </form>
-        </div>
-    </div>
-  )
+                    {contactInfo.map((info, index) => {
+                        const Icon = info.icon;
+                        return (
+                            <motion.div
+                                key={index}
+                                variants={staggerItem}
+                                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center"
+                                whileHover={{ y: -4 }}
+                            >
+                                <div className="bg-linear-to-br from-blue-500 to-purple-500 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                    <Icon className="w-7 h-7 text-white" />
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-2">{info.title}</h3>
+                                <p className="text-gray-800 font-medium mb-1">{info.content}</p>
+                                <p className="text-sm text-gray-500">{info.subtext}</p>
+                            </motion.div>
+                        );
+                    })}
+                </motion.div>
+
+                {/* Main Content - Form and Info */}
+                <ScrollReveal variants={scrollFadeIn}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        {/* Contact Form */}
+                        <div className="bg-white p-8 rounded-2xl shadow-xl">
+                            <div className="flex items-center mb-6">
+                                <MessageCircle className="w-8 h-8 text-blue-600 mr-3" />
+                                <h2 className="text-3xl font-bold text-gray-900">Send Us a Message</h2>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Your Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                                        placeholder="John Doe"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Email Address *
+                                    </label>
+                                    <input
+                                        type="email"
+                                        required
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                                        placeholder="your.email@example.com"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Message *
+                                    </label>
+                                    <textarea
+                                        rows="5"
+                                        required
+                                        value={formData.message}
+                                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors resize-none"
+                                        placeholder="How can we help you?"
+                                    ></textarea>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center"
+                                >
+                                    <Send className="w-5 h-5 mr-2" />
+                                    Send Message
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Additional Info */}
+                        <div className="space-y-8">
+                            {/* Why Contact Us */}
+                            <div className="bg-linear-to-br from-blue-50 to-purple-50 p-8 rounded-2xl">
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">Why Contact Us?</h3>
+                                <ul className="space-y-3">
+                                    <li className="flex items-start">
+                                        <div className="bg-blue-500 rounded-full w-2 h-2 mt-2 mr-3 shrink-0"></div>
+                                        <span className="text-gray-700">Get personalized hotel recommendations</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <div className="bg-blue-500 rounded-full w-2 h-2 mt-2 mr-3 shrink-0"></div>
+                                        <span className="text-gray-700">Assistance with booking modifications</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <div className="bg-blue-500 rounded-full w-2 h-2 mt-2 mr-3 shrink-0"></div>
+                                        <span className="text-gray-700">Special requests and group bookings</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <div className="bg-blue-500 rounded-full w-2 h-2 mt-2 mr-3 shrink-0"></div>
+                                        <span className="text-gray-700">Technical support and account help</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <div className="bg-blue-500 rounded-full w-2 h-2 mt-2 mr-3 shrink-0"></div>
+                                        <span className="text-gray-700">Partnership and collaboration inquiries</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            {/* Quick Response */}
+                            <div className="bg-white p-8 rounded-2xl shadow-lg border-2 border-blue-100">
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">Quick Response Guarantee</h3>
+                                <p className="text-gray-700 mb-4">
+                                    We pride ourselves on exceptional customer service. Our dedicated support team is available 24/7 to assist you with any questions or concerns.
+                                </p>
+                                <div className="bg-linear-to-r from-blue-600 to-purple-600 text-white p-4 rounded-xl">
+                                    <p className="font-bold text-lg mb-1">Average Response Time</p>
+                                    <p className="text-3xl font-bold">Under 2 Hours</p>
+                                </div>
+                            </div>
+
+                            {/* Emergency Contact */}
+                            <div className="bg-linear-to-r from-red-500 to-orange-500 text-white p-8 rounded-2xl shadow-lg">
+                                <h3 className="text-2xl font-bold mb-3">Emergency Support</h3>
+                                <p className="mb-4 opacity-95">
+                                    For urgent booking issues or emergencies during your stay:
+                                </p>
+                                <a
+                                    href="tel:+18005550199"
+                                    className="inline-block bg-white text-red-600 px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors"
+                                >
+                                    Call +1 (800) 555-0199
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </ScrollReveal>
+
+                {/* FAQ Link */}
+                <div className="mt-16 text-center bg-white p-8 rounded-2xl shadow-lg">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                        Looking for Quick Answers?
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                        Check out our FAQ section for instant answers to common questions
+                    </p>
+                    <button className="bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg">
+                        Visit FAQ
+                    </button>
+                </div>
+            </div>
+        </motion.div>
+    );
 }
 
-export default ContactPage
+export default ContactPage;
