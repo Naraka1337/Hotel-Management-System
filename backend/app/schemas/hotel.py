@@ -36,6 +36,13 @@ class HotelBase(BaseModel):
 class HotelCreate(HotelBase):
     manager_id: int
 
+class HotelUpdate(BaseModel):
+    name: Optional[str] = None
+    location: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    manager_id: Optional[int] = None
+
 class Hotel(HotelBase):
     id: int
     manager_id: int

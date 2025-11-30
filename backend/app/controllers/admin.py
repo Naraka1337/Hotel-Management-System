@@ -5,7 +5,7 @@ from app.core.database import get_db
 from app.models.user import User, UserRole
 from app.models.hotel import Hotel
 from app.schemas.user import User as UserSchema, UserUpdate
-from app.schemas.hotel import Hotel as HotelSchema, HotelCreate, HotelBase
+from app.schemas.hotel import Hotel as HotelSchema, HotelCreate, HotelBase, HotelUpdate
 from app.controllers.auth import get_current_user
 
 router = APIRouter()
@@ -128,3 +128,34 @@ def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: U
     db.commit()
     db.refresh(new_user)
     return new_user
+
+@router.put("/hotels/{hotel_id}", response_model=HotelSchema)
+def update_hotel(hotel_id: int, hotel_update: HotelUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):
+    hotel = db.query(Hotel).filter(Hotel.id == hotel_id).first()
+    if not hotel:
+        raise HTTPException(status_code=404, detail="Hotel not found")
+    
+    update_data = hotel_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(hotel, key, value)
+    
+    db.commit()
+    db.refresh(hotel)
+    return hotel
+
+@router.put("/users/{user_id}", response_model=UserSchema)
+def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    update_data = user_update.model_dump(exclude_unset=True)
+    if "password" in update_data and update_data["password"]:
+        update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
+        
+    for key, value in update_data.items():
+        setattr(user, key, value)
+    
+    db.commit()
+    db.refresh(user)
+    return user

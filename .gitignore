@@ -90,7 +90,5 @@ ENV/
 .pytest_cache/
 
 # Database
-*.db
 *.sqlite
 *.sqlite3
-hotel.db

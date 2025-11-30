@@ -4,6 +4,9 @@ import { FaGoogle, FaFacebookF } from 'react-icons/fa';
 import { User, Mail, Lock } from 'lucide-react';
 import { fadeIn, slideUp } from '../../utils/animations';
 
+import { register } from '../../api/auth';
+import { toast } from 'react-toastify';
+
 const RegisterForm = ({ setAuthView }) => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -12,6 +15,7 @@ const RegisterForm = ({ setAuthView }) => {
     password: '',
     confirmPassword: ''
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,11 +25,25 @@ const RegisterForm = ({ setAuthView }) => {
     }));
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    console.log('Registration data:', formData);
-    alert('Registration successful!');
-    setAuthView('login');
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords don't match!");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await register(formData);
+      toast.success('Registration successful! Please login.');
+      setAuthView('login');
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error(error.response?.data?.detail || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

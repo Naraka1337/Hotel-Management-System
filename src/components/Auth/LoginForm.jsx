@@ -3,12 +3,31 @@ import { motion } from 'framer-motion';
 import { Mail, Lock } from 'lucide-react';
 import { fadeIn, slideUp, staggerContainer, staggerItem } from '../../utils/animations';
 
+import { useNavigate } from 'react-router-dom';
+import { login } from '../../api/auth';
+import { toast } from 'react-toastify';
+
 const LoginForm = ({ setAuthView }) => {
-  const handleLogin = (e) => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Simulate successful login
-    alert('Login successful!'); // Placeholder
-    // TODO: Implement actual login logic
+    setLoading(true);
+
+    const email = e.target[0].value;
+    const password = e.target[1].value;
+
+    try {
+      await login(email, password);
+      toast.success('Login successful!');
+      navigate('/'); // Redirect to home
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error(error.response?.data?.detail || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
