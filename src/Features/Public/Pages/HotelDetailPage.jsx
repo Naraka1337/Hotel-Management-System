@@ -40,7 +40,8 @@ const HotelDetails = () => {
     mutationFn: createBooking,
     onSuccess: () => {
       toast.success('Booking created successfully!');
-      navigate('/bookings');
+      // Small delay to ensure toast is seen and state is updated
+      setTimeout(() => navigate('/bookings'), 500);
     },
     onError: (error) => {
       toast.error(`Booking failed: ${error.response?.data?.detail || error.message}`);

@@ -138,6 +138,28 @@ export const RegisterForm = ({ setAuthView }) => {
         </div>
       </div>
 
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Select Role</label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <User className="h-5 w-5 text-gray-400" />
+          </div>
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all appearance-none bg-white"
+          >
+            <option value="guest">Guest</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <p className="text-xs text-gray-500 mt-1">
+          * Note: Admin role is available for demo purposes.
+        </p>
+      </div>
+
       <button
         type="submit"
         disabled={loading}
