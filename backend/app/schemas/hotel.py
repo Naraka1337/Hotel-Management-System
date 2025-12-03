@@ -6,16 +6,18 @@ class RoomBase(BaseModel):
     room_number: str
     type: str
     price: float
+    capacity: int = 1
     description: Optional[str] = None
     is_available: bool = True
 
 class RoomCreate(RoomBase):
-    pass
+    hotel_id: int
 
 class RoomUpdate(BaseModel):
     room_number: Optional[str] = None
     type: Optional[str] = None
     price: Optional[float] = None
+    capacity: Optional[int] = None
     description: Optional[str] = None
     is_available: Optional[bool] = None
 

@@ -92,3 +92,4 @@ ENV/
 # Database
 *.sqlite
 *.sqlite3
+*.db

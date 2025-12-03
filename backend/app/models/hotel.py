@@ -24,6 +24,7 @@ class Room(Base):
     room_number = Column(String)
     type = Column(String) # Single, Double, Suite
     price = Column(Float)
+    capacity = Column(Integer, default=1)
     is_available = Column(Boolean, default=True)
     description = Column(Text, nullable=True)
 

@@ -47,7 +47,7 @@ const DashboardHome = () => {
         );
     }
 
-    const { stats: apiStats = {}, recent_bookings: apiRecentBookings = [] } = dashboardData || {};
+    const { recent_bookings: apiRecentBookings = [], ...apiStats } = dashboardData || {};
 
     // Map API stats to UI format
     const stats = [
@@ -67,7 +67,7 @@ const DashboardHome = () => {
         },
         {
             title: 'Total Revenue',
-            value: `$${apiStats.total_revenue || 0}`,
+            value: `$${apiStats.revenue || 0}`,
             icon: <DollarSign className="w-10 h-10 opacity-80" />,
             gradient: 'from-purple-500 to-purple-600',
             textColor: 'text-purple-100'
@@ -123,11 +123,11 @@ const DashboardHome = () => {
                                 {apiRecentBookings.map((booking) => (
                                     <tr key={booking.id} className="hover:bg-gray-50 transition duration-150">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#{booking.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{booking.user_id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Room {booking.room_id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.check_in}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.check_out}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">${booking.total_price}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{booking.guest}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.hotel || booking.room}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.checkIn}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.checkOut}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">${booking.amount}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(booking.status)}`}>
                                                 {booking.status}
@@ -163,7 +163,7 @@ const GlobalSettingsForm = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Saving Global Settings:', settings);
+        // In a real app, this would call an API
         alert('Settings Saved Successfully!');
     };
 
