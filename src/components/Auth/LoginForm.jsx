@@ -23,7 +23,7 @@ const LoginForm = ({ setAuthView }) => {
       toast.success('Login successful!');
 
       // Redirect based on role
-      const role = response.user?.role;
+      const role = response?.role;
       if (role === 'admin') {
         navigate('/admin');
       } else if (role === 'manager') {

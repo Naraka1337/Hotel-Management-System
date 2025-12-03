@@ -68,7 +68,7 @@ const PublicLayout = () => {
                                             <p className="text-sm font-medium text-gray-900">{user.full_name}</p>
                                             <p className="text-xs text-gray-500 truncate">{user.email}</p>
                                         </div>
-                                        <Link to="/my-bookings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                        <Link to="/bookings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                                             My Bookings
                                         </Link>
                                         {user.role === 'admin' && (
@@ -157,7 +157,7 @@ const PublicLayout = () => {
                                                 </div>
                                             </div>
                                             <Link
-                                                to="/my-bookings"
+                                                to="/bookings"
                                                 className="block px-4 py-3 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
                                                 onClick={() => setMobileMenuOpen(false)}
                                             >

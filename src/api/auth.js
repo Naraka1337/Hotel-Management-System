@@ -1,58 +1,54 @@
-import { DB } from '../offline/db';
+import axiosClient from './axiosClient';
 
-// Test backend connection (Mocked)
+// Test backend connection
 export const testConnection = async () => {
-  return { success: true, data: { message: 'Offline Mode Active' } };
+  try {
+    const response = await axiosClient.get('/health');
+    return { success: true, data: response.data };
+  } catch (error) {
+    return { success: false, error };
+  }
 };
 
 // Login
 export const login = async (email, password) => {
-  try {
-    const response = DB.login(email, password);
-    return response;
-  } catch (error) {
-    throw { response: { data: { detail: error.message } } };
+  const formData = new URLSearchParams();
+  formData.append('username', email);
+  formData.append('password', password);
+
+  const response = await axiosClient.post('/api/auth/login', formData, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+
+  if (response.data.access_token) {
+    localStorage.setItem('access_token', response.data.access_token);
   }
+
+  return response.data;
 };
 
 // Register
 export const register = async (userData) => {
-  try {
-    // Check if user exists
-    const existingUser = DB.findUser(userData.email);
-    if (existingUser) {
-      throw new Error('User already exists');
-    }
-
-    const newUser = {
-      email: userData.email,
-      password: userData.password,
-      full_name: `${userData.firstName} ${userData.lastName}`.trim(),
-      role: userData.role || 'guest',
-      profile_picture: userData.profile_picture || null
-    };
-
-    DB.addUser(newUser);
-    return { message: 'Registration successful' };
-  } catch (error) {
-    throw { response: { data: { detail: error.message } } };
-  }
+  const response = await axiosClient.post('/api/auth/register', {
+    email: userData.email,
+    password: userData.password,
+    full_name: `${userData.firstName} ${userData.lastName}`.trim(),
+    role: userData.role || 'guest',
+  });
+  return response.data;
 };
 
 // Get current user
 export const getCurrentUser = async () => {
-  try {
-    const user = DB.getCurrentUser();
-    return user;
-  } catch (error) {
-    throw { response: { status: 401 } };
-  }
+  const response = await axiosClient.get('/api/auth/me');
+  return response.data;
 };
 
 // Logout
 export const logout = () => {
-  DB.logout();
+  localStorage.removeItem('access_token');
 };
 
 export default { login, register, getCurrentUser, logout };
-

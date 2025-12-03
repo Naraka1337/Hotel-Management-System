@@ -1,55 +1,31 @@
-import { DB } from '../offline/db';
+import axiosClient from './axiosClient';
 
 // Get all hotels
 export const getHotels = async (params) => {
-  let hotels = DB.getHotels();
-
-  // Basic search filtering
-  if (params && params.location) {
-    const query = params.location.toLowerCase();
-    hotels = hotels.filter(h =>
-      h.name.toLowerCase().includes(query) ||
-      h.location.toLowerCase().includes(query)
-    );
-  }
-
-  return hotels;
+  const response = await axiosClient.get('/api/public/hotels', { params });
+  return response.data;
 };
 
 // Get hotel by ID
 export const getHotel = async (hotelId) => {
-  const hotel = DB.getHotelById(hotelId);
-  if (!hotel) throw new Error('Hotel not found');
-  return hotel;
+  const response = await axiosClient.get(`/api/public/hotels/${hotelId}`);
+  return response.data;
 };
 
 // Get rooms for a hotel
 export const getHotelRooms = async (hotelId) => {
-  const hotel = DB.getHotelById(hotelId);
-  if (!hotel) throw new Error('Hotel not found');
-  return hotel.rooms || [];
+  const response = await axiosClient.get(`/api/public/hotels/${hotelId}/rooms`);
+  return response.data;
 };
 
 // Create booking
 export const createBooking = async (bookingData) => {
-  // In a real app we'd validate user, dates etc.
-  const user = DB.getCurrentUser();
-  if (!user) throw new Error('Must be logged in');
-
-  const booking = DB.addBooking({
-    ...bookingData,
-    userId: user.id,
-    hotelId: bookingData.hotel_id, // Ensure mapping matches
-    roomId: bookingData.room_id
-  });
-
-  return booking;
+  const response = await axiosClient.post('/api/public/bookings', bookingData);
+  return response.data;
 };
 
 // Get user bookings
 export const getBookings = async () => {
-  const user = DB.getCurrentUser();
-  if (!user) throw new Error('Must be logged in');
-  return DB.getUserBookings(user.id);
+  const response = await axiosClient.get('/api/public/bookings');
+  return response.data;
 };
-

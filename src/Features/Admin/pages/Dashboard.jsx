@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Hotel, Users, Calendar, DollarSign, Settings, LayoutDashboard, Plus, Trash2, Edit, Bed, Loader } from 'lucide-react';
+import React, { useState } from 'react';
+import { Hotel, Users, Calendar, DollarSign, Settings, LayoutDashboard, Bed, Loader } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getAdminDashboard } from '../../../api/admin';
 import AllRoomsPage from './AllRoomsPage';
 import AllHotelsPage from './AllHotelsPage';
 import UserManagementTable from '../UserManagementTable';
-
-// --- Global Constants ---
-const __app_id = typeof window !== 'undefined' && typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
-
-// Mock Firebase Imports (Required by instructions, even if logic is simplified)
-const mockAuth = { currentUser: { uid: 'mock-admin-user-123' } };
 
 // Helper function to get status badge styling
 const getStatusBadge = (status) => {
@@ -31,7 +25,7 @@ const getStatusBadge = (status) => {
 };
 
 // --- 1. Dashboard Component (Integrated with API) ---
-const Dashboard = () => {
+const DashboardHome = () => {
     const { data: dashboardData, isLoading, error } = useQuery({
         queryKey: ['adminDashboard'],
         queryFn: getAdminDashboard,
@@ -53,34 +47,34 @@ const Dashboard = () => {
         );
     }
 
-    const { stats: apiStats, recent_bookings: apiRecentBookings } = dashboardData;
+    const { stats: apiStats = {}, recent_bookings: apiRecentBookings = [] } = dashboardData || {};
 
     // Map API stats to UI format
     const stats = [
         {
             title: 'Total Hotels',
-            value: apiStats.total_hotels,
+            value: apiStats.total_hotels || 0,
             icon: <Hotel className="w-10 h-10 opacity-80" />,
             gradient: 'from-blue-500 to-blue-600',
             textColor: 'text-blue-100'
         },
         {
             title: 'Total Bookings',
-            value: apiStats.total_bookings,
+            value: apiStats.total_bookings || 0,
             icon: <Calendar className="w-10 h-10 opacity-80" />,
             gradient: 'from-green-500 to-green-600',
             textColor: 'text-green-100'
         },
         {
             title: 'Total Revenue',
-            value: `$${apiStats.total_revenue}`,
+            value: `$${apiStats.total_revenue || 0}`,
             icon: <DollarSign className="w-10 h-10 opacity-80" />,
             gradient: 'from-purple-500 to-purple-600',
             textColor: 'text-purple-100'
         },
         {
             title: 'Active Users',
-            value: apiStats.active_users,
+            value: apiStats.active_users || 0,
             icon: <Users className="w-10 h-10 opacity-80" />,
             gradient: 'from-amber-500 to-amber-600',
             textColor: 'text-amber-100'
@@ -88,7 +82,7 @@ const Dashboard = () => {
     ];
 
     return (
-        <div className=" ml p-6 space-y-6 ">
+        <div className="space-y-6">
             <h1 className="text-3xl font-extrabold text-gray-800">Admin Dashboard</h1>
 
             {/* Stats Cards */}
@@ -174,7 +168,7 @@ const GlobalSettingsForm = () => {
     };
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="space-y-6">
             <h1 className="text-3xl font-extrabold text-gray-800">Global System Settings</h1>
             <p className="text-gray-600">Configure core system parameters and behaviors.</p>
 
@@ -258,54 +252,6 @@ const GlobalSettingsForm = () => {
     );
 };
 
-// --- 5. Main Admin App (Router and Layout) ---
-const Sidebar = ({ currentPage, setCurrentPage }) => {
-    const navItems = [
-        { name: 'Dashboard', icon: LayoutDashboard, component: 'Dashboard' },
-        { name: 'Hotels', icon: Hotel, component: 'AllHotelsPage' },
-        { name: 'Rooms', icon: Bed, component: 'AllRoomsPage' },
-        { name: 'Users', icon: Users, component: 'UserManagementTable' },
-        { name: 'Settings', icon: Settings, component: 'GlobalSettingsForm' },
-    ];
-
-    return (
-        <div className="w-64 bg-gray-900 text-white flex flex-col h-screen fixed md:static z-10">
-            <div className="p-6 i text-2xl font-bold  tracking-wider border-b border-gray-800 text-blue-400 flex items-center">
-                <span className="bg-blue-600 text-white p-2 rounded-lg mr-3">
-                    <LayoutDashboard className="w-5 h-5" />
-                </span>
-                HBMS Admin
-            </div>
-            <nav className="grow p-4 space-y-1">
-                {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = currentPage === item.component;
-                    return (
-                        <button
-                            key={item.name}
-                            onClick={() => setCurrentPage(item.component)}
-                            className={`flex items-center w-full p-3 rounded-lg transition-all duration-200 ${isActive
-                                ? 'bg-blue-600 text-white shadow-lg transform -translate-x-1'
-                                : 'text-gray-300 hover:bg-gray-800 hover:text-white hover:translate-x-1'
-                                }`}
-                        >
-                            <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : 'text-blue-400'}`} />
-                            <span className="font-medium">{item.name}</span>
-                            {isActive && (
-                                <span className="ml-auto w-2 h-2 bg-white rounded-full"></span>
-                            )}
-                        </button>
-                    );
-                })}
-            </nav>
-            <div className="p-4 text-xs text-gray-500 border-t border-gray-800">
-                <div>Version 1.0.0</div>
-                <div className="text-gray-600">App ID: {__app_id}</div>
-            </div>
-        </div>
-    );
-};
-
 const renderPage = (pageName) => {
     switch (pageName) {
         case 'AllHotelsPage':
@@ -318,46 +264,17 @@ const renderPage = (pageName) => {
             return <GlobalSettingsForm />;
         case 'Dashboard':
         default:
-            return <Dashboard />;
+            return <DashboardHome />;
     }
 };
 
-const App = () => {
+const AdminDashboard = () => {
     const [currentPage, setCurrentPage] = useState('Dashboard');
-    const [isAuthReady, setIsAuthReady] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [userId, setUserId] = useState('admin@luxestay.com');
     const [notifications] = useState([
         { id: 1, message: 'New booking received', time: '2 min ago', read: false },
         { id: 2, message: 'System update available', time: '1 hour ago', read: true },
     ]);
-
-    // Mock Firestore/Auth Setup
-    useEffect(() => {
-        console.log("Firebase Init/Auth Check started...");
-        try {
-            setTimeout(() => {
-                setUserId(mockAuth.currentUser?.uid);
-                setIsAuthReady(true);
-            }, 50);
-        } catch (error) {
-            console.error("Mock Firebase Init Error:", error);
-            setIsAuthReady(true);
-        }
-    }, []);
-
-    if (!isAuthReady) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-blue-600 to-blue-800">
-                <div className="text-center p-8 bg-white rounded-xl shadow-2xl">
-                    <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-2xl font-bold text-gray-800">Loading Dashboard</h2>
-                    <p className="text-gray-600 mt-2">Please wait while we prepare your admin panel</p>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="flex min-h-screen bg-gray-50 font-sans text-gray-800">
@@ -428,7 +345,6 @@ const App = () => {
                 </nav>
                 <div className="p-4 text-xs text-gray-500 border-t border-gray-800">
                     <div>Version 1.0.0</div>
-                    <div className="text-gray-600">App ID: {__app_id}</div>
                 </div>
             </div>
 
@@ -456,11 +372,10 @@ const App = () => {
                             {/* User Profile */}
                             <div className="flex items-center space-x-2">
                                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
-                                    {userId ? userId.charAt(0).toUpperCase() : 'A'}
+                                    A
                                 </div>
                                 <div className="hidden md:block text-left">
                                     <p className="text-sm font-medium text-gray-800">Admin User</p>
-                                    <p className="text-xs text-gray-500">{userId}</p>
                                 </div>
                             </div>
                         </div>
@@ -478,4 +393,4 @@ const App = () => {
     );
 };
 
-export default App;
+export default AdminDashboard;

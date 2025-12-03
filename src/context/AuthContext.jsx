@@ -27,11 +27,11 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const data = await apiLogin(email, password);
+        await apiLogin(email, password);
         // After login, fetch user details
         const userData = await getCurrentUser();
         setUser(userData);
-        return data;
+        return userData;
     };
 
     const logout = () => {
