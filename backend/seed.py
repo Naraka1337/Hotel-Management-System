@@ -45,8 +45,34 @@ def seed_data():
             db.add(manager)
         managers.append(manager)
     
+    # Specific Manager (manager@example.com)
+    manager_main = db.query(User).filter(User.email == "manager@example.com").first()
+    if not manager_main:
+        manager_main = User(
+            email="manager@example.com",
+            hashed_password=get_password_hash("manager123"),
+            full_name="Main Manager",
+            role=UserRole.MANAGER,
+            is_active=True
+        )
+        db.add(manager_main)
+    managers.append(manager_main)
+
     # Guests
     guests = []
+    # Specific Guest (guest@example.com)
+    guest_main = db.query(User).filter(User.email == "guest@example.com").first()
+    if not guest_main:
+        guest_main = User(
+            email="guest@example.com",
+            hashed_password=get_password_hash("guest123"),
+            full_name="Main Guest",
+            role=UserRole.GUEST,
+            is_active=True
+        )
+        db.add(guest_main)
+    guests.append(guest_main)
+
     for i in range(1, 6):
         email = f"guest{i}@example.com"
         guest = db.query(User).filter(User.email == email).first()
@@ -64,9 +90,12 @@ def seed_data():
     db.commit()
     
     # Refresh objects to get IDs
+    # Refresh objects to get IDs
     admin = db.query(User).filter(User.email == "admin@example.com").first()
-    managers = [db.query(User).filter(User.email == f"manager{i}@example.com").first() for i in range(1, 4)]
-    guests = [db.query(User).filter(User.email == f"guest{i}@example.com").first() for i in range(1, 6)]
+    managers = [db.query(User).filter(User.email == "manager@example.com").first()] + \
+               [db.query(User).filter(User.email == f"manager{i}@example.com").first() for i in range(1, 4)]
+    guests = [db.query(User).filter(User.email == "guest@example.com").first()] + \
+             [db.query(User).filter(User.email == f"guest{i}@example.com").first() for i in range(1, 6)]
 
     # --- 2. Hotels ---
     print("Creating Hotels...")

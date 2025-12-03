@@ -137,8 +137,8 @@ After running the `seed.py` script, you can use these credentials to log in:
 | Role | Email | Password |
 |------|-------|----------|
 | **Admin** | `admin@example.com` | `admin123` |
-| **Manager** | `manager1@example.com` | `manager123` |
-| **Guest** | `guest1@example.com` | `guest123` |
+| **Manager** | `manager@example.com` | `manager123` |
+| **Guest** | `guest@example.com` | `guest123` |
 
 ---
 
