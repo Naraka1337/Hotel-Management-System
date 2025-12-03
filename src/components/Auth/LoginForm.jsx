@@ -1,27 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock } from 'lucide-react';
-import { fadeIn, slideUp, staggerContainer, staggerItem } from '../../utils/animations';
+import { Mail, Lock, Loader } from 'lucide-react';
+import { fadeIn, slideUp } from '../../utils/animations';
 
 import { useNavigate } from 'react-router-dom';
-import { login } from '../../api/auth';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const LoginForm = ({ setAuthView }) => {
   const navigate = useNavigate();
-  const [loading, setLoading] = React.useState(false);
+  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const email = e.target[0].value;
-    const password = e.target[1].value;
-
     try {
-      await login(email, password);
+      const response = await login(email, password);
       toast.success('Login successful!');
-      navigate('/'); // Redirect to home
+
+      // Redirect based on role
+      const role = response?.role;
+      if (role === 'admin') {
+        navigate('/admin');
+      } else if (role === 'manager') {
+        navigate('/manager');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       console.error('Login error:', error);
       toast.error(error.response?.data?.detail || 'Login failed. Please check your credentials.');
@@ -45,6 +54,8 @@ const LoginForm = ({ setAuthView }) => {
           </div>
           <input
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all"
             placeholder="you@example.com"
@@ -60,6 +71,8 @@ const LoginForm = ({ setAuthView }) => {
           </div>
           <input
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all"
             placeholder="••••••••"
@@ -90,9 +103,10 @@ const LoginForm = ({ setAuthView }) => {
 
       <button
         type="submit"
-        className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+        disabled={loading}
+        className="w-full bg-linear-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
       >
-        Sign In
+        {loading ? <Loader className="animate-spin w-6 h-6" /> : 'Sign In'}
       </button>
 
       <div className="relative my-6">

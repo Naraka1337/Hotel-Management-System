@@ -1,35 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getBookings } from '../../../api/public';
-import { Calendar, CreditCard, Clock } from 'lucide-react';
+import { Calendar, CreditCard, Clock, Loader } from 'lucide-react';
+import { fadeIn } from '../../../utils/animations';
+import { motion } from 'framer-motion';
 
 function MyBookingsPage() {
-    const [bookings, setBookings] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { data: bookings = [], isLoading, error } = useQuery({
+        queryKey: ['myBookings'],
+        queryFn: getBookings,
+    });
 
-    useEffect(() => {
-        const fetchBookings = async () => {
-            try {
-                const data = await getBookings();
-                setBookings(data);
-            } catch (error) {
-                console.error('Error fetching bookings:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchBookings();
-    }, []);
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <Loader className="w-10 h-10 animate-spin text-blue-600" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex justify-center items-center min-h-screen text-red-600">
+                Error loading bookings: {error.message}
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <motion.div className="container mx-auto px-4 py-8" {...fadeIn}>
             <h1 className="text-3xl font-bold mb-8 text-gray-800">My Bookings</h1>
 
             {bookings.length === 0 ? (
@@ -63,7 +62,7 @@ function MyBookingsPage() {
                     ))}
                 </div>
             )}
-        </div>
+        </motion.div>
     );
 }
 
