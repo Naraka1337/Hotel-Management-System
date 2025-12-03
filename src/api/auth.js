@@ -1,108 +1,58 @@
-import axios from 'axios';
+import { DB } from '../offline/db';
 
-const API_BASE_URL = 'http://localhost:8000';
-
-// Test backend connection
+// Test backend connection (Mocked)
 export const testConnection = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/`);
-    return { success: true, data: response.data };
-  } catch (error) {
-    return { 
-      success: false, 
-      error: error.message,
-      details: error.code === 'ECONNREFUSED' ? 'Backend server is not running' : error.message
-    };
-  }
+  return { success: true, data: { message: 'Offline Mode Active' } };
 };
-
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Add token to requests if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 
 // Login
 export const login = async (email, password) => {
-  // OAuth2PasswordRequestForm expects form-urlencoded data
-  const params = new URLSearchParams();
-  params.append('username', email);
-  params.append('password', password);
-  
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/auth/login`, params.toString(), {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
-    
-    // Store tokens
-    if (response.data.access_token) {
-      localStorage.setItem('access_token', response.data.access_token);
-    }
-    
-    return response.data;
+    const response = DB.login(email, password);
+    return response;
   } catch (error) {
-    // Re-throw with better error info
-    if (error.response) {
-      throw error;
-    } else if (error.request) {
-      // Network error
-      const networkError = new Error('Network Error: Cannot connect to backend server. Make sure it is running on http://localhost:8000');
-      networkError.request = error.request;
-      throw networkError;
-    } else {
-      throw error;
-    }
+    throw { response: { data: { detail: error.message } } };
   }
 };
 
 // Register
 export const register = async (userData) => {
   try {
-    const response = await api.post('/api/auth/register', {
+    // Check if user exists
+    const existingUser = DB.findUser(userData.email);
+    if (existingUser) {
+      throw new Error('User already exists');
+    }
+
+    const newUser = {
       email: userData.email,
       password: userData.password,
-      name: `${userData.firstName} ${userData.lastName}`.trim(),
+      full_name: `${userData.firstName} ${userData.lastName}`.trim(),
       role: userData.role || 'guest',
-    });
-    return response.data;
+      profile_picture: userData.profile_picture || null
+    };
+
+    DB.addUser(newUser);
+    return { message: 'Registration successful' };
   } catch (error) {
-    // Re-throw with better error info
-    if (error.response) {
-      throw error;
-    } else if (error.request) {
-      // Network error
-      const networkError = new Error('Network Error: Cannot connect to backend server. Make sure it is running on http://localhost:8000');
-      networkError.request = error.request;
-      throw networkError;
-    } else {
-      throw error;
-    }
+    throw { response: { data: { detail: error.message } } };
   }
 };
 
 // Get current user
 export const getCurrentUser = async () => {
-  const response = await api.get('/api/auth/me');
-  return response.data;
+  try {
+    const user = DB.getCurrentUser();
+    return user;
+  } catch (error) {
+    throw { response: { status: 401 } };
+  }
 };
 
 // Logout
 export const logout = () => {
-  localStorage.removeItem('access_token');
+  DB.logout();
 };
 
-export default api;
+export default { login, register, getCurrentUser, logout };
 

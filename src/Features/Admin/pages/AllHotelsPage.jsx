@@ -2,28 +2,63 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { Plus, Edit, Trash2, Hotel, MapPin, Star, X, Save } from 'lucide-react';
+import { Plus, Edit, Trash2, MapPin, Star, X, Save, Hotel, Loader, Image as ImageIcon } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getAllHotels, createHotel, updateHotel, deleteHotel } from '../../../api/admin';
 import { fadeIn, staggerContainer, staggerItem, scaleIn, modalBackdrop } from '../../../utils/animations';
 
 const AllHotelsPage = () => {
-    const [hotels, setHotels] = useState([
-        { id: '1', name: 'Grand Plaza Hotel', city: 'New York', address: '123 Main St', rooms: 150, rating: 4.5, managerId: 'mgr_001', status: 'Active', description: 'Luxury hotel in downtown' },
-        { id: '2', name: 'Seaside Resort', city: 'Miami', address: '456 Beach Blvd', rooms: 90, rating: 4.8, managerId: 'mgr_002', status: 'Active', description: 'Beautiful beachfront resort' },
-        { id: '3', name: 'Mountain View Lodge', city: 'Denver', address: '789 Mountain Rd', rooms: 45, rating: 4.2, managerId: 'mgr_003', status: 'Inactive', description: 'Cozy mountain retreat' },
-    ]);
-
+    const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [currentHotel, setCurrentHotel] = useState({
-        id: '',
         name: '',
-        city: '',
-        address: '',
-        rooms: '',
-        rating: '',
-        managerId: '',
-        status: 'Active',
-        description: ''
+        location: '',
+        description: '',
+        manager_id: '', // Assuming we might assign a manager, but maybe optional
+        image_url: ''
+    });
+
+    // Fetch Hotels
+    const { data: hotels = [], isLoading, error } = useQuery({
+        queryKey: ['adminHotels'],
+        queryFn: getAllHotels,
+    });
+
+    // Mutations
+    const createMutation = useMutation({
+        mutationFn: createHotel,
+        onSuccess: () => {
+            queryClient.invalidateQueries(['adminHotels']);
+            toast.success('Hotel added successfully!');
+            handleCloseModal();
+        },
+        onError: (error) => {
+            toast.error('Failed to add hotel: ' + (error.response?.data?.detail || error.message));
+        }
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: ({ id, data }) => updateHotel(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries(['adminHotels']);
+            toast.success('Hotel updated successfully!');
+            handleCloseModal();
+        },
+        onError: (error) => {
+            toast.error('Failed to update hotel: ' + (error.response?.data?.detail || error.message));
+        }
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: deleteHotel,
+        onSuccess: () => {
+            queryClient.invalidateQueries(['adminHotels']);
+            toast.success('Hotel deleted successfully!');
+        },
+        onError: (error) => {
+            toast.error('Failed to delete hotel: ' + (error.response?.data?.detail || error.message));
+        }
     });
 
     const handleOpenModal = (hotel = null) => {
@@ -32,15 +67,11 @@ const AllHotelsPage = () => {
             setIsEditMode(true);
         } else {
             setCurrentHotel({
-                id: '',
                 name: '',
-                city: '',
-                address: '',
-                rooms: '',
-                rating: '',
-                managerId: '',
-                status: 'Active',
-                description: ''
+                location: '',
+                description: '',
+                manager_id: '',
+                image_url: ''
             });
             setIsEditMode(false);
         }
@@ -50,6 +81,13 @@ const AllHotelsPage = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setIsEditMode(false);
+        setCurrentHotel({
+            name: '',
+            location: '',
+            description: '',
+            manager_id: '',
+            image_url: ''
+        });
     };
 
     const handleInputChange = (e) => {
@@ -62,40 +100,40 @@ const AllHotelsPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        // Ensure manager_id is a number if present, else null/undefined
+        const hotelData = {
+            ...currentHotel,
+            manager_id: currentHotel.manager_id ? parseInt(currentHotel.manager_id) : null
+        };
 
         if (isEditMode) {
-            setHotels(hotels.map(hotel =>
-                hotel.id === currentHotel.id ? currentHotel : hotel
-            ));
-            toast.success('Hotel updated successfully!');
+            updateMutation.mutate({ id: currentHotel.id, data: hotelData });
         } else {
-            const newHotel = {
-                ...currentHotel,
-                id: Date.now().toString()
-            };
-            setHotels([...hotels, newHotel]);
-            toast.success('Hotel added successfully!');
+            createMutation.mutate(hotelData);
         }
-        handleCloseModal();
     };
 
     const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this hotel? This will also affect all associated rooms.')) {
-            setHotels(hotels.filter(hotel => hotel.id !== id));
-            toast.success('Hotel deleted successfully!');
+        if (window.confirm('Are you sure you want to delete this hotel?')) {
+            deleteMutation.mutate(id);
         }
     };
 
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'Active':
-                return 'bg-green-100 text-green-800';
-            case 'Inactive':
-                return 'bg-red-100 text-red-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
-        }
-    };
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader className="w-10 h-10 animate-spin text-blue-600" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-red-600 p-6">
+                Error loading hotels: {error.message}
+            </div>
+        );
+    }
 
     return (
         <motion.div className="p-6 space-y-6" {...fadeIn}>
@@ -113,106 +151,59 @@ const AllHotelsPage = () => {
                 </button>
             </div>
 
-            {/* Stats */}
-            <motion.div
-                className="grid grid-cols-1 md:grid-cols-3 gap-4"
-                variants={staggerContainer}
-                initial="initial"
-                animate="animate"
-            >
-                <motion.div className="bg-white rounded-lg shadow-sm p-4" variants={staggerItem}>
-                    <p className="text-sm text-gray-600">Total Hotels</p>
-                    <p className="text-2xl font-bold text-gray-800">{hotels.length}</p>
-                </motion.div>
-                <motion.div className="bg-green-50 rounded-lg shadow-sm p-4" variants={staggerItem}>
-                    <p className="text-sm text-green-600">Active</p>
-                    <p className="text-2xl font-bold text-green-800">
-                        {hotels.filter(h => h.status === 'Active').length}
-                    </p>
-                </motion.div>
-                <motion.div className="bg-red-50 rounded-lg shadow-sm p-4" variants={staggerItem}>
-                    <p className="text-sm text-red-600">Inactive</p>
-                    <p className="text-2xl font-bold text-red-800">
-                        {hotels.filter(h => h.status === 'Inactive').length}
-                    </p>
-                </motion.div>
-            </motion.div>
-
-            {/* Hotels Table */}
-            <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hotel Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rooms</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rating</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <motion.tbody
-                            className="bg-white divide-y divide-gray-100"
-                            variants={staggerContainer}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <AnimatePresence>
+                    {hotels.map((hotel) => (
+                        <motion.div
+                            key={hotel.id}
+                            className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300"
+                            variants={staggerItem}
                             initial="initial"
                             animate="animate"
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            layout
                         >
-                            {hotels.map((hotel) => (
-                                <motion.tr
-                                    key={hotel.id}
-                                    className="hover:bg-gray-50 transition duration-150"
-                                    variants={staggerItem}
-                                >
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center">
-                                            <div className="shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                <Hotel className="h-5 w-5 text-blue-600" />
-                                            </div>
-                                            <div className="ml-4">
-                                                <div className="text-sm font-medium text-gray-900">{hotel.name}</div>
-                                                <div className="text-xs text-gray-500">{hotel.description}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center text-sm text-gray-900">
-                                            <MapPin className="w-4 h-4 text-gray-400 mr-1" />
-                                            {hotel.city}
-                                        </div>
-                                        <div className="text-xs text-gray-500">{hotel.address}</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{hotel.rooms}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center">
-                                            <Star className="w-4 h-4 text-yellow-400 mr-1" />
-                                            <span className="text-sm text-gray-900">{hotel.rating} / 5</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(hotel.status)}`}>
-                                            {hotel.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center space-x-2">
-                                        <button
-                                            onClick={() => handleOpenModal(hotel)}
-                                            className="text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-indigo-50 transition inline-flex"
-                                        >
-                                            <Edit className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(hotel.id)}
-                                            className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50 transition inline-flex"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </motion.tr>
-                            ))}
-                        </motion.tbody>
-                    </table>
-                </div>
+                            <div className="h-48 bg-gray-200 relative">
+                                {hotel.image_url ? (
+                                    <img
+                                        src={hotel.image_url}
+                                        alt={hotel.name}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/400x200?text=No+Image'; }}
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                        <ImageIcon className="w-12 h-12" />
+                                    </div>
+                                )}
+                                <div className="absolute top-2 right-2 flex space-x-2">
+                                    <button
+                                        onClick={() => handleOpenModal(hotel)}
+                                        className="p-2 bg-white/90 rounded-full text-blue-600 hover:text-blue-800 shadow-sm backdrop-blur-sm"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(hotel.id)}
+                                        className="p-2 bg-white/90 rounded-full text-red-600 hover:text-red-800 shadow-sm backdrop-blur-sm"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="p-5">
+                                <h3 className="text-xl font-bold text-gray-800 mb-2">{hotel.name}</h3>
+                                <div className="flex items-center text-gray-600 mb-2">
+                                    <MapPin className="w-4 h-4 mr-1" />
+                                    <span className="text-sm">{hotel.location}</span>
+                                </div>
+                                <p className="text-gray-500 text-sm line-clamp-2 mb-4">
+                                    {hotel.description}
+                                </p>
+                            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
             </div>
 
             {/* Add/Edit Hotel Modal */}
@@ -235,13 +226,13 @@ const AllHotelsPage = () => {
                                         onClick={handleCloseModal}
                                         className="text-gray-400 hover:text-gray-500"
                                     >
-                                        <span className="text-2xl">&times;</span>
+                                        <X className="w-6 h-6" />
                                     </button>
                                 </div>
 
                                 <form onSubmit={handleSubmit}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="md:col-span-2">
+                                    <div className="space-y-4">
+                                        <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Hotel Name *
                                             </label>
@@ -257,95 +248,19 @@ const AllHotelsPage = () => {
 
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                City *
+                                                Location *
                                             </label>
                                             <input
                                                 type="text"
-                                                name="city"
+                                                name="location"
                                                 required
                                                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                value={currentHotel.city}
+                                                value={currentHotel.location}
                                                 onChange={handleInputChange}
                                             />
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Address *
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="address"
-                                                required
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                value={currentHotel.address}
-                                                onChange={handleInputChange}
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Number of Rooms *
-                                            </label>
-                                            <input
-                                                type="number"
-                                                name="rooms"
-                                                required
-                                                min="1"
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                value={currentHotel.rooms}
-                                                onChange={handleInputChange}
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Rating (1-5) *
-                                            </label>
-                                            <input
-                                                type="number"
-                                                name="rating"
-                                                required
-                                                min="1"
-                                                max="5"
-                                                step="0.1"
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                value={currentHotel.rating}
-                                                onChange={handleInputChange}
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Manager ID
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="managerId"
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                value={currentHotel.managerId}
-                                                onChange={handleInputChange}
-                                                placeholder="e.g., mgr_001"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Status *
-                                            </label>
-                                            <select
-                                                name="status"
-                                                required
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                value={currentHotel.status}
-                                                onChange={handleInputChange}
-                                            >
-                                                <option value="Active">Active</option>
-                                                <option value="Inactive">Inactive</option>
-                                            </select>
-                                        </div>
-
-                                        <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Description
                                             </label>
@@ -355,7 +270,33 @@ const AllHotelsPage = () => {
                                                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 value={currentHotel.description}
                                                 onChange={handleInputChange}
-                                                placeholder="Brief description of the hotel"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Image URL
+                                            </label>
+                                            <input
+                                                type="url"
+                                                name="image_url"
+                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                value={currentHotel.image_url}
+                                                onChange={handleInputChange}
+                                                placeholder="https://example.com/image.jpg"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Manager ID (Optional)
+                                            </label>
+                                            <input
+                                                type="number"
+                                                name="manager_id"
+                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                value={currentHotel.manager_id}
+                                                onChange={handleInputChange}
                                             />
                                         </div>
                                     </div>
@@ -364,16 +305,15 @@ const AllHotelsPage = () => {
                                         <button
                                             type="button"
                                             onClick={handleCloseModal}
-                                            className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                                            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                         >
-                                            <X className="w-4 h-4 mr-2" />
                                             Cancel
                                         </button>
                                         <button
                                             type="submit"
-                                            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                         >
-                                            <Save className="w-4 h-4 mr-2" />
+                                            <Save className="w-4 h-4 mr-2 inline" />
                                             {isEditMode ? 'Update Hotel' : 'Add Hotel'}
                                         </button>
                                     </div>
@@ -383,7 +323,7 @@ const AllHotelsPage = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </motion.div >
+        </motion.div>
     );
 };
 

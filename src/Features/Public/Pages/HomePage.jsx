@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Star, MapPin, Search, Award, Shield, Clock } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import heroImage from '../../../assets/luxury_hotel_hero.png';
 import grandPlazaImage from '../../../assets/grand_plaza_hotel.png';
 import seasideResortImage from '../../../assets/seaside_resort.png';
@@ -12,6 +12,21 @@ import ScrollReveal from '../../../components/ScrollReveal';
 
 
 const HomePage = () => {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/hotels?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   const hotels = [
     {
       id: 1,
@@ -99,10 +114,16 @@ const HomePage = () => {
                 <input
                   id="hotel-search"
                   type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   placeholder="Where do you want to go? Search destinations, hotels..."
                   className="flex-1 p-3 text-gray-800 rounded-lg focus:outline-none text-base"
                 />
-                <button className="bg-linear-to-r from-blue-600 to-purple-600 text-white py-3 px-8 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                <button
+                  onClick={handleSearch}
+                  className="bg-linear-to-r from-blue-600 to-purple-600 text-white py-3 px-8 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
                   Search
                 </button>
               </div>
@@ -178,7 +199,7 @@ const HomePage = () => {
                         </span>
                         <span className="text-gray-500 text-sm ml-1">/night</span>
                       </div>
-                      <Link to="/HotelsPage">
+                      <Link to={`/hotels/${hotel.id}`}>
                         <button className="bg-linear-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
                           Book Now
                         </button>
@@ -273,7 +294,7 @@ const HomePage = () => {
             <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
               Join thousands of satisfied travelers who trust us for their hotel bookings and create memories that last a lifetime.
             </p>
-            <Link to="/HotelsPage">
+            <Link to="/hotels">
               <button className="bg-white text-blue-600 px-10 py-4 rounded-xl text-lg font-bold hover:bg-gray-100 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
                 Explore All Hotels
               </button>

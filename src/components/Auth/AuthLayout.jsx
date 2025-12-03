@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import LoginForm from './LoginForm';
-import RegisterForm from './RegisterForm';
+import { RegisterForm } from './RegisterForm';
 import PasswordReset from './PasswordReset';
 
 const AuthLayout = () => {
