@@ -100,10 +100,10 @@ const AllHotelsPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Ensure manager_id is a number if present, else null/undefined
+        // Ensure manager_id is a number
         const hotelData = {
             ...currentHotel,
-            manager_id: currentHotel.manager_id ? parseInt(currentHotel.manager_id) : null
+            manager_id: parseInt(currentHotel.manager_id)
         };
 
         if (isEditMode) {
@@ -289,15 +289,20 @@ const AllHotelsPage = () => {
 
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Manager ID (Optional)
+                                                Manager ID *
                                             </label>
                                             <input
                                                 type="number"
                                                 name="manager_id"
+                                                required
                                                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                                 value={currentHotel.manager_id}
                                                 onChange={handleInputChange}
+                                                placeholder="Enter Manager ID (e.g., 2)"
                                             />
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Assign a manager to this hotel.
+                                            </p>
                                         </div>
                                     </div>
 

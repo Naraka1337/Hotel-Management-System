@@ -4,9 +4,12 @@ from typing import List
 from app.core.database import get_db
 from app.models.user import User, UserRole
 from app.models.hotel import Hotel
-from app.schemas.user import User as UserSchema, UserUpdate
+from app.schemas.user import User as UserSchema, UserUpdate, UserCreate
 from app.schemas.hotel import Hotel as HotelSchema, HotelCreate, HotelBase, HotelUpdate
 from app.controllers.auth import get_current_user
+from sqlalchemy import func
+from app.models.booking import Booking
+from app.core.security import get_password_hash
 
 router = APIRouter()
 
@@ -16,8 +19,7 @@ def get_current_admin(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Not authorized")
     return current_user
 
-from sqlalchemy import func
-from app.models.booking import Booking
+
 
 @router.get("/dashboard")
 def get_admin_dashboard(db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):
@@ -103,12 +105,9 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User 
     
     db.delete(user)
     db.commit()
-    db.delete(user)
-    db.commit()
     return {"message": "User deleted"}
 
-from app.schemas.user import UserCreate
-from app.core.security import get_password_hash
+
 
 @router.post("/users", response_model=UserSchema)
 def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):

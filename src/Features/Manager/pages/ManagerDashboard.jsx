@@ -26,7 +26,7 @@ const ManagerDashboard = () => {
         );
     }
 
-    const { stats: apiStats, recent_bookings: apiRecentBookings } = dashboardData || {};
+    const { recent_bookings: apiRecentBookings = [], ...apiStats } = dashboardData || {};
 
     const stats = [
         {
@@ -37,22 +37,22 @@ const ManagerDashboard = () => {
             color: 'bg-blue-500',
         },
         {
-            title: 'Available Rooms',
-            value: apiStats?.available_rooms || 0,
-            change: 'Currently available',
+            title: 'Total Rooms',
+            value: apiStats?.total_rooms || 0,
+            change: 'Managed Rooms',
             icon: Hotel,
             color: 'bg-green-500',
         },
         {
-            title: 'Monthly Revenue',
-            value: '$' + (apiStats?.monthly_revenue || 0),
-            change: 'This Month',
+            title: 'Total Revenue',
+            value: '$' + (apiStats?.revenue || 0),
+            change: 'Lifetime',
             icon: DollarSign,
             color: 'bg-purple-500',
         },
         {
             title: 'Occupancy Rate',
-            value: (apiStats?.occupancy_rate || 0) + '%',
+            value: apiStats?.occupancy || '0%',
             change: 'Current',
             icon: TrendingUp,
             color: 'bg-yellow-500',
@@ -122,22 +122,22 @@ const ManagerDashboard = () => {
                                     <tr key={booking.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="font-medium text-gray-900">
-                                                {booking.user_email}
+                                                {booking.guest}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                                            {booking.room_number}
+                                            {booking.room}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                                            {new Date(booking.check_in_date).toLocaleDateString()}
+                                            {booking.checkIn}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                                            {new Date(booking.check_out_date).toLocaleDateString()}
+                                            {booking.checkOut}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                                                    booking.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                                        'bg-yellow-100 text-yellow-800'
+                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
+                                                booking.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                                                    'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {booking.status}
                                             </span>

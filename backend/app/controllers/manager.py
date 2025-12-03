@@ -4,8 +4,11 @@ from typing import List
 from app.core.database import get_db
 from app.models.user import User, UserRole
 from app.models.hotel import Hotel, Room
-from app.schemas.hotel import Room as RoomSchema, RoomCreate, Hotel as HotelSchema
+from app.schemas.hotel import Room as RoomSchema, RoomCreate, Hotel as HotelSchema, RoomUpdate
 from app.controllers.auth import get_current_user
+from sqlalchemy import func
+from datetime import date
+from app.models.booking import Booking
 
 router = APIRouter()
 
@@ -15,9 +18,7 @@ def get_current_manager(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Not authorized")
     return current_user
 
-from sqlalchemy import func
-from datetime import date
-from app.models.booking import Booking
+
 
 @router.get("/dashboard")
 def get_manager_dashboard(db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
@@ -100,13 +101,13 @@ def get_manager_rooms(db: Session = Depends(get_db), current_user: User = Depend
     return db.query(Room).filter(Room.hotel_id.in_(hotel_ids)).all()
 
 @router.post("/rooms", response_model=RoomSchema)
-def create_room(room: RoomCreate, hotel_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
+def create_room(room: RoomCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
     # Verify manager owns the hotel
-    hotel = db.query(Hotel).filter(Hotel.id == hotel_id, Hotel.manager_id == current_user.id).first()
+    hotel = db.query(Hotel).filter(Hotel.id == room.hotel_id, Hotel.manager_id == current_user.id).first()
     if not hotel and current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=404, detail="Hotel not found or not authorized")
     
-    db_room = Room(**room.model_dump(), hotel_id=hotel_id)
+    db_room = Room(**room.model_dump())
     db.add(db_room)
     db.commit()
     db.refresh(db_room)
@@ -131,7 +132,7 @@ def delete_room(room_id: int, db: Session = Depends(get_db), current_user: User 
 def get_manager_hotels(db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
     return db.query(Hotel).filter(Hotel.manager_id == current_user.id).all()
 
-from app.schemas.hotel import RoomUpdate
+
 
 @router.put("/rooms/{room_id}", response_model=RoomSchema)
 def update_room(room_id: int, room_update: RoomUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):

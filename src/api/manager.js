@@ -29,3 +29,8 @@ export const deleteRoom = async (roomId) => {
   const response = await axiosClient.delete(`/api/manager/rooms/${roomId}`);
   return response.data;
 };
+// Get manager hotels
+export const getManagerHotels = async () => {
+  const response = await axiosClient.get('/api/manager/hotels');
+  return response.data;
+};

@@ -4,8 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { Plus, Edit, Trash2, Bed, Wifi, Tv, Coffee, Wind, Users, DollarSign, Loader, X, Save } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getManagerRooms, createRoom, updateRoom, deleteRoom } from '../../../api/manager';
-import { getHotels } from '../../../api/public';
+import { getManagerRooms, createRoom, updateRoom, deleteRoom, getManagerHotels } from '../../../api/manager';
 import { fadeIn, staggerContainer, staggerItem, scaleIn, modalBackdrop } from '../../../utils/animations';
 
 const roomTypes = [
@@ -49,10 +48,10 @@ const ManageRoomsPage = () => {
     queryFn: getManagerRooms,
   });
 
-  // Fetch Hotels (for dropdown)
+  // Fetch Hotels (for dropdown) - Only fetch hotels managed by this user
   const { data: hotels = [], isLoading: isLoadingHotels } = useQuery({
-    queryKey: ['publicHotels'],
-    queryFn: getHotels,
+    queryKey: ['managerHotels'],
+    queryFn: getManagerHotels,
   });
 
   // Mutations
@@ -119,10 +118,19 @@ const ManageRoomsPage = () => {
     // Prepare data for backend
     const roomData = {
       ...currentRoom,
-      price_per_night: parseFloat(currentRoom.price_per_night),
+      type: currentRoom.room_type, // Backend expects 'type', frontend uses 'room_type'
+      price: parseFloat(currentRoom.price_per_night), // Backend expects 'price', frontend uses 'price_per_night'
       capacity: parseInt(currentRoom.capacity),
       hotel_id: parseInt(currentRoom.hotel_id)
+      // amenities is not in RoomCreate schema, so it might be ignored or cause error if extra fields forbidden.
+      // For now, let's exclude it from the payload to fix 422, or update backend schema.
+      // Given the error is 422, it's likely validation.
     };
+
+    // Remove frontend-specific keys that don't match schema
+    delete roomData.room_type;
+    delete roomData.price_per_night;
+    delete roomData.amenities; // Removing amenities for now as it's not in schema
 
     if (isEditMode) {
       updateMutation.mutate({ id: currentRoom.id, data: roomData });
@@ -138,7 +146,8 @@ const ManageRoomsPage = () => {
       ...room,
       // Ensure types match for form fields
       hotel_id: room.hotel_id?.toString() || '',
-      price_per_night: room.price_per_night?.toString() || '',
+      room_type: room.type || 'single', // Map backend 'type' to frontend 'room_type'
+      price_per_night: room.price?.toString() || '', // Map backend 'price' to frontend 'price_per_night'
       capacity: room.capacity || 1,
       amenities: room.amenities || []
     });
