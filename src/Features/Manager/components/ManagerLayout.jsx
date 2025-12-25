@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import { LayoutDashboard, Hotel, Users, DollarSign, Settings, Sliders, LogOut } from 'lucide-react';
+import DarkModeToggle from '../../../components/DarkModeToggle';
 
 const ManagerLayout = () => {
     const location = useLocation();
@@ -43,8 +44,8 @@ const ManagerLayout = () => {
             )}
 
             {/* Sidebar */}
-            <div className={`w-64 bg-gray-800 text-white flex flex-col h-screen fixed md:static z-30 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-                <div className="p-6 text-xl font-bold tracking-wider border-b border-gray-700 text-white flex items-center justify-between">
+            <div className={`w-64 bg-gray-800 text-white flex flex-col h-screen fixed md:static z-30 transform transition-transform duration-300 dark:bg-gray-900 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+                <div className="p-6 text-xl font-bold tracking-wider border-b border-gray-700 text-white flex items-center justify-between dark:border-gray-800">
                     <div className="flex items-center">
                         <span className="bg-blue-600 text-white p-2 rounded-lg mr-3">
                             <LayoutDashboard className="w-5 h-5" />
@@ -94,14 +95,19 @@ const ManagerLayout = () => {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 w-full overflow-x-hidden">
+            <div className="flex-1 w-full overflow-x-hidden dark:bg-gray-900 transition-colors duration-300">
                 {/* Top Navigation */}
-                <header className="bg-white shadow-sm sticky top-0 z-10">
+                <header className="bg-white shadow-sm sticky top-0 z-10 dark:bg-gray-900 dark:border-b dark:border-gray-800 dark:shadow-none transition-colors duration-300">
                     <div className="flex items-center justify-between p-4">
-                        <h1 className="text-xl font-semibold text-gray-800 ml-4 md:ml-0">
+                        <h1 className="text-xl font-semibold text-gray-800 ml-4 md:ml-0 dark:text-white">
                             {navItems.find(item => item.path === location.pathname)?.name || 'Dashboard'}
                         </h1>
-                        {/* User menu would go here */}
+                        <div className="flex items-center space-x-4">
+                            <div className="relative z-50">
+                                <DarkModeToggle />
+                            </div>
+                            {/* User menu would go here */}
+                        </div>
                     </div>
                 </header>
 

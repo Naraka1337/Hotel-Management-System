@@ -92,7 +92,7 @@ function HotelsPage() {
   }
 
   return (
-    <motion.div className="min-h-screen bg-linear-to-b from-gray-50 to-white" {...fadeIn}>
+    <motion.div className="min-h-screen bg-linear-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-300" {...fadeIn}>
       {/* Search Section */}
       <section className="relative bg-linear-to-r from-blue-600 via-purple-600 to-blue-600 text-white py-16 px-4">
         <div className="max-w-7xl mx-auto">
@@ -105,10 +105,10 @@ function HotelsPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-5xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-5xl mx-auto dark:bg-gray-800">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Location</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Location</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
@@ -116,13 +116,13 @@ function HotelsPage() {
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
                     placeholder="Where are you going?"
-                    className="w-full pl-10 p-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full pl-10 p-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Check-in</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Check-in</label>
                 <input
                   type="date"
                   min={today}
@@ -133,25 +133,25 @@ function HotelsPage() {
                       setCheckOutDate('');
                     }
                   }}
-                  className="w-full p-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors"
+                  className="w-full p-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Check-out</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Check-out</label>
                 <input
                   type="date"
                   min={checkInDate || today}
                   value={checkOutDate}
                   onChange={(e) => setCheckOutDate(e.target.value)}
                   disabled={!checkInDate}
-                  className={`w-full p-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors ${!checkInDate ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
+                  className={`w-full p-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors ${!checkInDate ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800' : 'dark:bg-gray-700 dark:border-gray-600 dark:text-white'}`}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Guests</label>
-                <select className="w-full p-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Guests</label>
+                <select className="w-full p-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option>1 Guest</option>
                   <option>2 Guests</option>
                   <option>3+ Guests</option>
@@ -180,8 +180,8 @@ function HotelsPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900">Available Hotels</h2>
-              <p className="text-gray-600 mt-1">{filteredHotels.length} properties found</p>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Available Hotels</h2>
+              <p className="text-gray-600 mt-1 dark:text-gray-400">{filteredHotels.length} properties found</p>
             </div>
             <div className="flex items-center gap-4">
               {/* Country Filter Dropdown */}
@@ -190,7 +190,7 @@ function HotelsPage() {
                 <select
                   value={selectedCountry}
                   onChange={(e) => setSelectedCountry(e.target.value)}
-                  className="pl-10 pr-8 py-2 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors bg-white min-w-[180px] appearance-none cursor-pointer"
+                  className="pl-10 pr-8 py-2 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors bg-white min-w-[180px] appearance-none cursor-pointer dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 >
                   <option value="all">All Countries</option>
                   {countries.map(country => (
@@ -200,7 +200,7 @@ function HotelsPage() {
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 bg-white px-4 py-2 rounded-xl border-2 border-gray-200 hover:border-blue-500 transition-colors"
+                className="flex items-center space-x-2 bg-white px-4 py-2 rounded-xl border-2 border-gray-200 hover:border-blue-500 transition-colors dark:bg-gray-800 dark:border-gray-600 dark:text-white"
               >
                 <SlidersHorizontal className="w-5 h-5" />
                 <span className="font-medium">Filters</span>
@@ -218,7 +218,7 @@ function HotelsPage() {
               <motion.div
                 key={hotel.id}
                 variants={staggerItem}
-                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden"
+                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden dark:bg-gray-800"
                 whileHover={{ y: -8 }}
               >
                 {/* Hotel Image */}
@@ -230,9 +230,9 @@ function HotelsPage() {
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     onError={(e) => { e.target.src = defaultHotelImage; }}
                   />
-                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full flex items-center gap-1 shadow-lg">
+                  <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full flex items-center gap-1 shadow-lg dark:bg-black/50 dark:text-white">
                     <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="text-sm font-bold text-gray-900">{hotel.rating || 'New'}</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">{hotel.rating || 'New'}</span>
                   </div>
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
@@ -241,23 +241,23 @@ function HotelsPage() {
                 <div className="p-6">
                   <div className="mb-3">
                     <Link to={`/hotels/${hotel.id}`}>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors dark:text-white dark:group-hover:text-blue-400">
                         {hotel.name}
                       </h3>
                     </Link>
-                    <p className="text-sm text-gray-500 mb-2 line-clamp-2">{hotel.description}</p>
-                    <div className="flex items-center text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4 mr-1 text-blue-600" />
+                    <p className="text-sm text-gray-500 mb-2 line-clamp-2 dark:text-gray-400">{hotel.description}</p>
+                    <div className="flex items-center text-gray-600 mb-3 dark:text-gray-400">
+                      <MapPin className="w-4 h-4 mr-1 text-blue-600 dark:text-blue-400" />
                       <span className="text-sm">{hotel.location}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                     <div>
-                      <span className="text-3xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      <span className="text-3xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
                         ${hotel.rooms && hotel.rooms.length > 0 ? Math.min(...hotel.rooms.map(r => r.price)) : 'N/A'}
                       </span>
-                      <span className="text-gray-500 text-sm ml-1">/night</span>
+                      <span className="text-gray-500 text-sm ml-1 dark:text-gray-400">/night</span>
                     </div>
                     <Link
                       to={`/hotels/${hotel.id}`}

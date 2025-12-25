@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // login register forgot password
@@ -41,66 +42,68 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-        <Routes>
-          {/* ======================= 1. PUBLIC ROUTES (Accessible to all) ======================= */}
-          <Route element={<PublicLayout />} >
-            <Route path="/" element={<HomePage />} />
-            <Route path='/hotels' element={<HotelsPage />} />
-            <Route path='/hotels/:hotelId' element={<HotelDetailPage />} />
-            <Route path='/about' element={<AboutPage />} />
-            <Route path='/contact' element={<ContactPage />} />
+        <ThemeProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
+          <Routes>
+            {/* ======================= 1. PUBLIC ROUTES (Accessible to all) ======================= */}
+            <Route element={<PublicLayout />} >
+              <Route path="/" element={<HomePage />} />
+              <Route path='/hotels' element={<HotelsPage />} />
+              <Route path='/hotels/:hotelId' element={<HotelDetailPage />} />
+              <Route path='/about' element={<AboutPage />} />
+              <Route path='/contact' element={<ContactPage />} />
 
-            {/* Protected User Routes */}
-            <Route path='/bookings' element={
-              <ProtectedRoute allowedRoles={['guest', 'admin', 'manager']}>
-                <MyBookingsPage />
+              {/* Protected User Routes */}
+              <Route path='/bookings' element={
+                <ProtectedRoute allowedRoles={['guest', 'admin', 'manager']}>
+                  <MyBookingsPage />
+                </ProtectedRoute>
+              } />
+            </Route>
+
+            {/* ======================= AUTH ROUTES ======================= */}
+            <Route path="/login" element={<AuthLayout />} />
+            <Route path="/register" element={<AuthLayout />} />
+            <Route path="/forgot-password" element={<AuthLayout />} />
+            <Route path="/reset-password" element={<ResetPasswordForm />} />
+
+            {/* ======================= 2. MANAGER ROUTES (Requires 'manager' role) ======================= */}
+            <Route element={
+              <ProtectedRoute allowedRoles={['manager', 'admin']}>
+                <ManagerLayout />
+              </ProtectedRoute>
+            }>
+              <Route path="manager" element={<ManagerDashboard />} />
+              <Route path="manager/dashboard" element={<ManagerDashboard />} />
+              <Route path="manager/rooms" element={<ManageRoomsPage />} />
+              <Route path="manager/bookings" element={<BookingsPage />} />
+              <Route path="manager/revenue" element={<RevenuePage />} />
+              <Route path="manager/revenue-settings" element={<RevenueSettingsPage />} />
+              <Route path="manager/settings" element={<SettingsPage />} />
+            </Route>
+
+            {/* ======================= 3. ADMIN ROUTES (Requires 'admin' role) ======================= */}
+            <Route path='/admin/*' element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminDashboard />
               </ProtectedRoute>
             } />
-          </Route>
 
-          {/* ======================= AUTH ROUTES ======================= */}
-          <Route path="/login" element={<AuthLayout />} />
-          <Route path="/register" element={<AuthLayout />} />
-          <Route path="/forgot-password" element={<AuthLayout />} />
-          <Route path="/reset-password" element={<ResetPasswordForm />} />
-
-          {/* ======================= 2. MANAGER ROUTES (Requires 'manager' role) ======================= */}
-          <Route element={
-            <ProtectedRoute allowedRoles={['manager', 'admin']}>
-              <ManagerLayout />
-            </ProtectedRoute>
-          }>
-            <Route path="manager" element={<ManagerDashboard />} />
-            <Route path="manager/dashboard" element={<ManagerDashboard />} />
-            <Route path="manager/rooms" element={<ManageRoomsPage />} />
-            <Route path="manager/bookings" element={<BookingsPage />} />
-            <Route path="manager/revenue" element={<RevenuePage />} />
-            <Route path="manager/revenue-settings" element={<RevenueSettingsPage />} />
-            <Route path="manager/settings" element={<SettingsPage />} />
-          </Route>
-
-          {/* ======================= 3. ADMIN ROUTES (Requires 'admin' role) ======================= */}
-          <Route path='/admin/*' element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
-
-          {/* ======================= 4. FALLBACK ROUTE ======================= */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+            {/* ======================= 4. FALLBACK ROUTE ======================= */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </ThemeProvider>
       </AuthProvider>
     </Router>
   );

@@ -1,1 +1,17 @@
 @import "tailwindcss";
+@config "../tailwind.config.js";
+
+:root {
+  --color-bg-light: #f9fafb;
+  --color-text-light: #111827;
+  --color-bg-dark: #111827;
+  --color-text-dark: #f9fafb;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 transition-colors duration-300;
+}
+
+.dark body {
+  @apply bg-gray-900 text-gray-50;
+}

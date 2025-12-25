@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Hotel, Users, Calendar, DollarSign, Settings, LayoutDashboard, Bed, Loader } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import DarkModeToggle from '../../../components/DarkModeToggle';
 import { getAdminDashboard } from '../../../api/admin';
 import AllRoomsPage from './AllRoomsPage';
 import AllHotelsPage from './AllHotelsPage';
@@ -91,8 +92,8 @@ const DashboardHome = () => {
                     <div key={index} className={`bg-linear-to-br ${stat.gradient} text-white p-6 rounded-xl shadow-xl transition transform hover:scale-[1.02] cursor-pointer`}>
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className={`${stat.textColor} text-sm font-medium uppercase`}>{stat.title}</p>
-                                <p className="text-4xl font-bold mt-1">{stat.value}</p>
+                                <p className={`${stat.textColor} text-sm font-medium uppercase opacity-90`}>{stat.title}</p>
+                                <p className="text-4xl font-bold mt-1 text-white">{stat.value}</p>
                             </div>
                             {stat.icon}
                         </div>
@@ -101,33 +102,33 @@ const DashboardHome = () => {
             </div>
 
             {/* Recent Bookings */}
-            <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
+            <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
                 <div className="p-6">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center dark:text-white">
                         <Calendar className="w-5 h-5 mr-2 text-blue-500" /> Recent Bookings
                     </h2>
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead className="bg-gray-50 dark:bg-gray-700">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Room</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check-in</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check-out</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-300">ID</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-300">User</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-300">Room</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-300">Check-in</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-300">Check-out</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-300">Amount</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-300">Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-100">
+                            <tbody className="bg-white divide-y divide-gray-100 dark:bg-gray-800 dark:divide-gray-700">
                                 {apiRecentBookings.map((booking) => (
-                                    <tr key={booking.id} className="hover:bg-gray-50 transition duration-150">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#{booking.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{booking.guest}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.hotel || booking.room}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.checkIn}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.checkOut}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">${booking.amount}</td>
+                                    <tr key={booking.id} className="hover:bg-gray-50 transition duration-150 dark:hover:bg-gray-700">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">#{booking.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{booking.guest}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{booking.hotel || booking.room}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{booking.checkIn}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{booking.checkOut}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold dark:text-white">${booking.amount}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(booking.status)}`}>
                                                 {booking.status}
@@ -140,7 +141,7 @@ const DashboardHome = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
@@ -169,13 +170,13 @@ const GlobalSettingsForm = () => {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-extrabold text-gray-800">Global System Settings</h1>
-            <p className="text-gray-600">Configure core system parameters and behaviors.</p>
+            <h1 className="text-3xl font-extrabold text-gray-800 dark:text-white">Global System Settings</h1>
+            <p className="text-gray-600 dark:text-gray-400">Configure core system parameters and behaviors.</p>
 
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-2xl space-y-6 max-w-lg border border-gray-100">
+            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-2xl space-y-6 max-w-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
                 {/* Commission Rate */}
                 <div>
-                    <label htmlFor="commissionRate" className="block text-sm font-medium text-gray-700">Commission Rate (%)</label>
+                    <label htmlFor="commissionRate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Commission Rate (%)</label>
                     <input
                         type="number"
                         id="commissionRate"
@@ -184,20 +185,20 @@ const GlobalSettingsForm = () => {
                         onChange={handleChange}
                         min="0"
                         max="100"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         required
                     />
                 </div>
 
                 {/* Default Currency */}
                 <div>
-                    <label htmlFor="defaultCurrency" className="block text-sm font-medium text-gray-700">Default Currency</label>
+                    <label htmlFor="defaultCurrency" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Default Currency</label>
                     <select
                         id="defaultCurrency"
                         name="defaultCurrency"
                         value={settings.defaultCurrency}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-white"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         required
                     >
                         <option value="USD">USD (US Dollar)</option>
@@ -208,14 +209,14 @@ const GlobalSettingsForm = () => {
 
                 {/* Support Email */}
                 <div>
-                    <label htmlFor="supportEmail" className="block text-sm font-medium text-gray-700">Support Email</label>
+                    <label htmlFor="supportEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Support Email</label>
                     <input
                         type="email"
                         id="supportEmail"
                         name="supportEmail"
                         value={settings.supportEmail}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         required
                     />
                 </div>
@@ -229,12 +230,12 @@ const GlobalSettingsForm = () => {
                             type="checkbox"
                             checked={settings.emailEnabled}
                             onChange={handleChange}
-                            className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                            className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700"
                         />
                     </div>
                     <div className="ml-3 text-sm">
-                        <label htmlFor="emailEnabled" className="font-medium text-gray-700">Enable System Emails</label>
-                        <p className="text-gray-500">Automatically send booking confirmations and alerts.</p>
+                        <label htmlFor="emailEnabled" className="font-medium text-gray-700 dark:text-gray-300">Enable System Emails</label>
+                        <p className="text-gray-500 dark:text-gray-400">Automatically send booking confirmations and alerts.</p>
                     </div>
                 </div>
 
@@ -348,15 +349,18 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            <div className="flex-1 transition-all duration-300 w-full overflow-x-hidden">
+            <div className="flex-1 transition-all duration-300 w-full overflow-x-hidden dark:bg-gray-900">
                 {/* Top Navigation */}
-                <header className="bg-white shadow-sm sticky top-0 z-10">
+                <header className="bg-white shadow-sm sticky top-0 z-10 dark:bg-gray-900 dark:border-b dark:border-gray-800 dark:shadow-none transition-colors duration-300">
                     <div className="flex items-center justify-between p-4">
-                        <h1 className="text-2xl font-bold text-gray-800 ml-4 md:ml-0">
+                        <h1 className="text-2xl font-bold text-gray-800 ml-4 md:ml-0 dark:text-white">
                             {currentPage.replace(/([A-Z])/g, ' $1').trim()}
                         </h1>
 
                         <div className="flex items-center space-x-4">
+                            <div className="relative z-50">
+                                <DarkModeToggle />
+                            </div>
                             {/* Notifications */}
                             <div className="relative">
                                 <button className="p-2 text-gray-500 hover:text-gray-700 relative">
@@ -383,8 +387,8 @@ const AdminDashboard = () => {
                 </header>
 
                 {/* Main Content */}
-                <main className="p-4 md:p-6">
-                    <div className="bg-white rounded-xl shadow-sm p-6">
+                <main className="p-4 md:p-6 dark:bg-gray-900 transition-colors duration-300 min-h-screen">
+                    <div className="bg-white rounded-xl shadow-sm p-6 dark:bg-gray-800 dark:text-white transition-colors duration-300">
                         {renderPage(currentPage)}
                     </div>
                 </main>
