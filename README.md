@@ -93,6 +93,8 @@ python3 -m venv ../venv
 # 3. Activate the virtual environment
 # On Linux/macOS:
 source ../venv/bin/activate
+# On Fish shell:
+source ../venv/bin/activate.fish
 # On Windows:
 # ..\venv\Scripts\activate
 
