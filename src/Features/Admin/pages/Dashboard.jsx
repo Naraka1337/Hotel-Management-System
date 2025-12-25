@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Hotel, Users, Calendar, DollarSign, Settings, LayoutDashboard, Bed, Loader } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Hotel, Users, Calendar, DollarSign, Settings, LayoutDashboard, Bed, Loader, LogOut } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import DarkModeToggle from '../../../components/DarkModeToggle';
+import { useAuth } from '../../../context/AuthContext';
 import { getAdminDashboard } from '../../../api/admin';
 import AllRoomsPage from './AllRoomsPage';
 import AllHotelsPage from './AllHotelsPage';
@@ -276,6 +278,13 @@ const AdminDashboard = () => {
         { id: 1, message: 'New booking received', time: '2 min ago', read: false },
         { id: 2, message: 'System update available', time: '1 hour ago', read: true },
     ]);
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     return (
         <div className="flex min-h-screen bg-gray-50 font-sans text-gray-800">
@@ -344,8 +353,15 @@ const AdminDashboard = () => {
                         );
                     })}
                 </nav>
-                <div className="p-4 text-xs text-gray-500 border-t border-gray-800">
-                    <div>Version 1.0.0</div>
+                <div className="p-4 border-t border-gray-800">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
+                    >
+                        <LogOut className="w-5 h-5 mr-3 text-red-400" />
+                        <span className="font-medium">Logout</span>
+                    </button>
+                    <div className="mt-4 text-xs text-gray-500">Version 1.0.0</div>
                 </div>
             </div>
 
