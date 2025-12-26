@@ -115,14 +115,14 @@ const HotelDetails = () => {
 
       {/* Hotel Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">{hotel.name}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{hotel.name}</h1>
         <div className="flex flex-wrap items-center gap-4 mt-2">
           <div className="flex items-center text-yellow-500">
             <Star className="w-5 h-5 fill-current" />
-            <span className="ml-1 font-bold text-gray-900">{hotel.rating || 'New'}</span>
+            <span className="ml-1 font-bold text-gray-900 dark:text-white">{hotel.rating || 'New'}</span>
           </div>
-          <span className="text-gray-600">•</span>
-          <div className="flex items-center text-gray-600">
+          <span className="text-gray-600 dark:text-gray-400">•</span>
+          <div className="flex items-center text-gray-600 dark:text-gray-400">
             <MapPin className="w-4 h-4 mr-1" />
             <span>{hotel.location}</span>
           </div>
@@ -130,7 +130,7 @@ const HotelDetails = () => {
       </div>
 
       {/* Image Gallery */}
-      <div className="relative mb-8 rounded-xl overflow-hidden bg-gray-100 h-[450px] md:h-[550px]">
+      <div className="relative mb-8 rounded-xl overflow-hidden bg-gray-100 h-[450px] md:h-[550px] dark:bg-gray-800">
         <img
           src={images[currentImageIndex]}
           alt={hotel.name}
@@ -144,15 +144,15 @@ const HotelDetails = () => {
         {/* Main Content */}
         <div className="lg:w-2/3">
           {/* Tabs */}
-          <div className="border-b border-gray-200 mb-6">
+          <div className="border-b border-gray-200 mb-6 dark:border-gray-700">
             <nav className="flex space-x-8">
               {['overview', 'rooms', 'amenities', 'policies'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${activeTab === tab
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-600'
                     }`}
                 >
                   {tab}
@@ -165,37 +165,37 @@ const HotelDetails = () => {
           <div className="min-h-[300px]">
             {activeTab === 'overview' && (
               <div>
-                <h2 className="text-2xl font-semibold mb-4">About {hotel.name}</h2>
-                <p className="text-gray-700 leading-relaxed">{hotel.description}</p>
+                <h2 className="text-2xl font-semibold mb-4 dark:text-white">About {hotel.name}</h2>
+                <p className="text-gray-700 leading-relaxed dark:text-gray-300">{hotel.description}</p>
               </div>
             )}
 
             {activeTab === 'rooms' && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-semibold mb-4">Available Rooms</h2>
+                <h2 className="text-2xl font-semibold mb-4 dark:text-white">Available Rooms</h2>
                 {rooms.length === 0 ? (
-                  <p className="text-gray-500">No rooms available at the moment.</p>
+                  <p className="text-gray-500 dark:text-gray-400">No rooms available at the moment.</p>
                 ) : (
                   rooms.map((room) => (
                     <div
                       key={room.id}
-                      className={`border rounded-lg p-6 transition-all cursor-pointer ${selectedRoom?.id === room.id ? 'border-blue-500 ring-2 ring-blue-100' : 'hover:border-blue-300'}`}
+                      className={`border rounded-lg p-6 transition-all cursor-pointer dark:bg-gray-800 ${selectedRoom?.id === room.id ? 'border-blue-500 ring-2 ring-blue-100 dark:ring-blue-900' : 'hover:border-blue-300 dark:border-gray-700'}`}
                       onClick={() => setSelectedRoom(room)}
                     >
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="text-xl font-semibold">{room.type} - Room {room.room_number}</h3>
-                          <p className="text-gray-600 mt-1">{room.description}</p>
-                          <div className="mt-2 flex items-center text-sm text-gray-500">
+                          <h3 className="text-xl font-semibold dark:text-white">{room.type} - Room {room.room_number}</h3>
+                          <p className="text-gray-600 mt-1 dark:text-gray-400">{room.description}</p>
+                          <div className="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400">
                             <Users className="w-4 h-4 mr-1" />
                             <span>Max Guests: 2</span> {/* Assuming 2 for now as backend model doesn't have capacity */}
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-gray-900">${room.price}</div>
-                          <div className="text-sm text-gray-500">per night</div>
+                          <div className="text-2xl font-bold text-gray-900 dark:text-white">${room.price}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">per night</div>
                           {selectedRoom?.id === room.id && (
-                            <span className="inline-block mt-2 text-sm text-blue-600 font-medium">Selected</span>
+                            <span className="inline-block mt-2 text-sm text-blue-600 font-medium dark:text-blue-400">Selected</span>
                           )}
                         </div>
                       </div>
@@ -207,10 +207,10 @@ const HotelDetails = () => {
 
             {activeTab === 'amenities' && (
               <div>
-                <h2 className="text-2xl font-semibold mb-4">Amenities</h2>
+                <h2 className="text-2xl font-semibold mb-4 dark:text-white">Amenities</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {amenities.map((amenity, index) => (
-                    <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
+                    <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-800 dark:text-gray-300">
                       <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                       <span>{amenity}</span>
                     </div>
@@ -221,10 +221,10 @@ const HotelDetails = () => {
 
             {activeTab === 'policies' && (
               <div>
-                <h2 className="text-2xl font-semibold mb-4">Hotel Policies</h2>
+                <h2 className="text-2xl font-semibold mb-4 dark:text-white">Hotel Policies</h2>
                 <ul className="space-y-3">
                   {policies.map((policy, index) => (
-                    <li key={index} className="flex items-start text-gray-700">
+                    <li key={index} className="flex items-start text-gray-700 dark:text-gray-300">
                       <span className="mr-2">•</span>
                       <span>{policy}</span>
                     </li>
@@ -237,58 +237,58 @@ const HotelDetails = () => {
 
         {/* Booking Widget */}
         <div className="lg:w-1/3">
-          <div className="bg-white rounded-xl shadow-lg sticky top-6 p-6 border border-gray-100">
+          <div className="bg-white rounded-xl shadow-lg sticky top-6 p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
             <div className="mb-6">
-              <span className="text-3xl font-bold text-gray-900">
+              <span className="text-3xl font-bold text-gray-900 dark:text-white">
                 ${selectedRoom ? selectedRoom.price : hotel.rooms && hotel.rooms.length > 0 ? 'From ' + Math.min(...hotel.rooms.map(r => r.price)) : 'Check'}
               </span>
-              <span className="text-gray-500 ml-1">/ night</span>
+              <span className="text-gray-500 ml-1 dark:text-gray-400">/ night</span>
             </div>
 
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Check-in</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Check-in</label>
                   <input
                     type="date"
                     min={new Date().toISOString().split('T')[0]}
                     value={checkIn}
                     onChange={(e) => setCheckIn(e.target.value)}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Check-out</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Check-out</label>
                   <input
                     type="date"
                     min={checkIn || new Date().toISOString().split('T')[0]}
                     value={checkOut}
                     onChange={(e) => setCheckOut(e.target.value)}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Room Selection</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Room Selection</label>
                 <div
-                  className="w-full p-3 border rounded-md bg-gray-50 cursor-pointer flex justify-between items-center"
+                  className="w-full p-3 border rounded-md bg-gray-50 cursor-pointer flex justify-between items-center dark:bg-gray-700 dark:border-gray-600"
                   onClick={() => setActiveTab('rooms')}
                 >
-                  <span className={selectedRoom ? 'text-gray-900' : 'text-gray-500'}>
+                  <span className={selectedRoom ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
                     {selectedRoom ? `${selectedRoom.type} ($${selectedRoom.price})` : 'Select a room'}
                   </span>
-                  <span className="text-blue-600 text-sm">Change</span>
+                  <span className="text-blue-600 text-sm dark:text-blue-400">Change</span>
                 </div>
               </div>
 
               {selectedRoom && checkIn && checkOut && (
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                <div className="bg-gray-50 p-4 rounded-lg space-y-2 dark:bg-gray-700 dark:text-gray-200">
                   <div className="flex justify-between text-sm">
                     <span>{selectedRoom.price} x {calculateTotal() / selectedRoom.price} nights</span>
                     <span>${calculateTotal()}</span>
                   </div>
-                  <div className="flex justify-between font-bold border-t pt-2">
+                  <div className="flex justify-between font-bold border-t pt-2 dark:border-gray-600">
                     <span>Total</span>
                     <span>${calculateTotal()}</span>
                   </div>

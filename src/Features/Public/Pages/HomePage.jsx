@@ -62,7 +62,7 @@ const HomePage = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-linear-to-b from-gray-50 to-white"
+      className="min-h-screen bg-linear-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-300"
       {...fadeIn}
     >
       {/* Hero Section with Background Image */}
@@ -109,7 +109,7 @@ const HomePage = () => {
 
             {/* Search Bar */}
             <div className="max-w-3xl mx-auto">
-              <div className="bg-white rounded-2xl shadow-2xl p-4 flex items-center gap-3 hover:shadow-3xl transition duration-300">
+              <div className="bg-white rounded-2xl shadow-2xl p-4 flex items-center gap-3 hover:shadow-3xl transition duration-300 dark:bg-gray-800">
                 <Search className="h-6 w-6 text-gray-400 ml-2" />
                 <input
                   id="hotel-search"
@@ -118,7 +118,7 @@ const HomePage = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Where do you want to go? Search destinations, hotels..."
-                  className="flex-1 p-3 text-gray-800 rounded-lg focus:outline-none text-base"
+                  className="flex-1 p-3 text-gray-800 rounded-lg focus:outline-none text-base dark:bg-gray-800 dark:text-white"
                 />
                 <button
                   onClick={handleSearch}
@@ -144,10 +144,10 @@ const HomePage = () => {
         <section className="py-20 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 dark:text-white">
                 Featured Hotels
               </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
                 Handpicked luxury accommodations for unforgettable experiences
               </p>
             </div>
@@ -162,7 +162,7 @@ const HomePage = () => {
                 <motion.div
                   key={hotel.id}
                   variants={staggerItem}
-                  className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden"
+                  className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden dark:bg-gray-800"
                   whileHover={{ y: -8 }}
                 >
                   {/* Hotel Image */}
@@ -172,9 +172,9 @@ const HomePage = () => {
                       alt={hotel.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full flex items-center gap-1 shadow-lg">
+                    <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full flex items-center gap-1 shadow-lg dark:bg-black/50 dark:text-white">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="text-sm font-bold text-gray-900">{hotel.rating}</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{hotel.rating}</span>
                     </div>
                     <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
@@ -182,22 +182,22 @@ const HomePage = () => {
                   {/* Hotel Details */}
                   <div className="p-6">
                     <div className="mb-3">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors dark:text-white dark:group-hover:text-blue-400">
                         {hotel.name}
                       </h3>
-                      <p className="text-sm text-gray-500 mb-2">{hotel.description}</p>
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="w-4 h-4 mr-1 text-blue-600" />
+                      <p className="text-sm text-gray-500 mb-2 dark:text-gray-400">{hotel.description}</p>
+                      <div className="flex items-center text-gray-600 dark:text-gray-400">
+                        <MapPin className="w-4 h-4 mr-1 text-blue-600 dark:text-blue-400" />
                         <span className="text-sm">{hotel.location}</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                       <div>
-                        <span className="text-3xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <span className="text-3xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
                           ${hotel.price}
                         </span>
-                        <span className="text-gray-500 text-sm ml-1">/night</span>
+                        <span className="text-gray-500 text-sm ml-1 dark:text-gray-400">/night</span>
                       </div>
                       <Link to={`/hotels/${hotel.id}`}>
                         <button className="bg-linear-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
@@ -215,13 +215,13 @@ const HomePage = () => {
 
       {/* Why Choose Us Section */}
       <ScrollReveal variants={scrollFadeIn}>
-        <section className="py-20 bg-linear-to-br from-blue-50 to-purple-50">
+        <section className="py-20 bg-linear-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 dark:text-white">
                 Why Choose Us
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-xl text-gray-600 dark:text-gray-300">
                 Experience the difference with our premium service
               </p>
             </div>
@@ -233,43 +233,43 @@ const HomePage = () => {
               animate="animate"
             >
               <motion.div
-                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center dark:bg-gray-800"
                 variants={staggerItem}
                 whileHover={{ y: -4 }}
               >
                 <div className="bg-linear-to-br from-blue-500 to-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                   <Award className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Best Price Guarantee</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 dark:text-white">Best Price Guarantee</h3>
+                <p className="text-gray-600 dark:text-gray-400">
                   Find a lower price? We'll match it and give you an extra 10% off
                 </p>
               </motion.div>
 
               <motion.div
-                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center dark:bg-gray-800"
                 variants={staggerItem}
                 whileHover={{ y: -4 }}
               >
                 <div className="bg-linear-to-br from-blue-500 to-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                   <Shield className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Secure Payments</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 dark:text-white">Secure Payments</h3>
+                <p className="text-gray-600 dark:text-gray-400">
                   Your transactions are protected with bank-level encryption
                 </p>
               </motion.div>
 
               <motion.div
-                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center dark:bg-gray-800"
                 variants={staggerItem}
                 whileHover={{ y: -4 }}
               >
                 <div className="bg-linear-to-br from-blue-500 to-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                   <Clock className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">24/7 Support</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 dark:text-white">24/7 Support</h3>
+                <p className="text-gray-600 dark:text-gray-400">
                   Our dedicated team is always here to help you anytime, anywhere
                 </p>
               </motion.div>

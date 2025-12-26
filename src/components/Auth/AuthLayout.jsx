@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
+import DarkModeToggle from '../DarkModeToggle';
 
 const AuthLayout = () => {
   const location = useLocation();
@@ -34,9 +35,12 @@ const AuthLayout = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative dark:bg-gray-900 transition-colors duration-300">
+      <div className="absolute top-4 right-4 z-50">
+        <DarkModeToggle />
+      </div>
       <div className="max-w-md w-full space-y-8">
-        <div className="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-6 shadow rounded-lg sm:px-10 dark:bg-gray-800 transition-colors duration-300">
           {renderAuthForm()}
         </div>
       </div>

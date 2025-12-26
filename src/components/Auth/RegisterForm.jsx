@@ -43,13 +43,13 @@ export const RegisterForm = ({ setAuthView }) => {
   return (
     <motion.form onSubmit={handleSubmit} className="space-y-6" {...fadeIn}>
       <motion.div className="text-center mb-8" {...slideUp}>
-        <h2 className="text-4xl font-bold text-gray-900 mb-3">Create Account</h2>
-        <p className="text-gray-600 text-lg">Join us for an unforgettable experience</p>
+        <h2 className="text-4xl font-bold text-gray-900 mb-3 dark:text-white">Create Account</h2>
+        <p className="text-gray-600 text-lg dark:text-gray-400">Join us for an unforgettable experience</p>
       </motion.div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">First Name</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <User className="h-5 w-5 text-gray-400" />
@@ -60,13 +60,13 @@ export const RegisterForm = ({ setAuthView }) => {
               value={formData.firstName}
               onChange={handleChange}
               required
-              className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all"
+              className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500/50"
               placeholder="John"
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Last Name</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <User className="h-5 w-5 text-gray-400" />
@@ -77,7 +77,7 @@ export const RegisterForm = ({ setAuthView }) => {
               value={formData.lastName}
               onChange={handleChange}
               required
-              className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all"
+              className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500/50"
               placeholder="Doe"
             />
           </div>
@@ -85,7 +85,7 @@ export const RegisterForm = ({ setAuthView }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Email Address</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Mail className="h-5 w-5 text-gray-400" />
@@ -96,14 +96,14 @@ export const RegisterForm = ({ setAuthView }) => {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all"
+            className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500/50"
             placeholder="you@example.com"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Password</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Lock className="h-5 w-5 text-gray-400" />
@@ -114,14 +114,14 @@ export const RegisterForm = ({ setAuthView }) => {
             value={formData.password}
             onChange={handleChange}
             required
-            className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all"
+            className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500/50"
             placeholder="••••••••"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Confirm Password</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Lock className="h-5 w-5 text-gray-400" />
@@ -132,7 +132,7 @@ export const RegisterForm = ({ setAuthView }) => {
             value={formData.confirmPassword}
             onChange={handleChange}
             required
-            className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all"
+            className="w-full pl-10 p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500/50"
             placeholder="••••••••"
           />
         </div>
@@ -146,12 +146,12 @@ export const RegisterForm = ({ setAuthView }) => {
         {loading ? <Loader className="animate-spin w-6 h-6" /> : 'Create Account'}
       </button>
 
-      <p className="text-center text-sm text-gray-600 mt-6">
+      <p className="text-center text-sm text-gray-600 mt-6 dark:text-gray-400">
         Already have an account?
         <button
           type="button"
           onClick={() => setAuthView('login')}
-          className="font-bold text-blue-600 hover:text-blue-800 ml-1 transition-colors"
+          className="font-bold text-blue-600 hover:text-blue-800 ml-1 transition-colors dark:text-blue-400 dark:hover:text-blue-300"
         >
           Sign In
         </button>

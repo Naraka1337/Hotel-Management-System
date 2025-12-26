@@ -41,7 +41,7 @@ const AboutPage = () => {
     ];
 
     return (
-        <motion.div className="min-h-screen bg-linear-to-b from-gray-50 to-white" {...fadeIn}>
+        <motion.div className="min-h-screen bg-linear-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-300" {...fadeIn}>
             {/* Hero Section */}
             <section className="relative h-[500px] overflow-hidden">
                 <div className="absolute inset-0">
@@ -78,13 +78,13 @@ const AboutPage = () => {
                     <div className="max-w-7xl mx-auto">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                             <div className="order-2 lg:order-1">
-                                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 dark:text-white">
                                     Our Mission
                                 </h2>
-                                <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+                                <p className="text-lg text-gray-700 mb-6 leading-relaxed dark:text-gray-300">
                                     Luxe Stay was founded with a singular vision: to simplify luxury travel booking. We believe that securing your perfect accommodation should be as relaxing as the vacation itself.
                                 </p>
-                                <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+                                <p className="text-lg text-gray-700 mb-6 leading-relaxed dark:text-gray-300">
                                     By partnering directly with the world's most exclusive hotels and resorts, we offer unparalleled access and the best available rates. Our platform is designed to cater to travelers, hotel managers, and administrators—ensuring a smooth, efficient experience for everyone involved.
                                 </p>
                                 <div className="flex items-center space-x-4">
@@ -112,13 +112,13 @@ const AboutPage = () => {
 
             {/* Why Choose Us Section */}
             <ScrollReveal variants={scrollFadeIn}>
-                <section className="py-20 bg-linear-to-br from-blue-50 to-purple-50">
+                <section className="py-20 bg-linear-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900">
                     <div className="max-w-7xl mx-auto px-4">
                         <div className="text-center mb-16">
-                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 dark:text-white">
                                 Why Choose Luxe Stay?
                             </h2>
-                            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                            <p className="text-xl text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
                                 Experience the difference with our premium service and commitment to excellence
                             </p>
                         </div>
@@ -133,11 +133,11 @@ const AboutPage = () => {
                                 <motion.div
                                     key={index}
                                     variants={staggerItem}
-                                    className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
+                                    className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3 dark:bg-gray-800"
                                     whileHover={{ y: -4 }}
                                 >
                                     <CheckCircle className="w-6 h-6 text-green-500 shrink-0" />
-                                    <span className="text-gray-800 font-medium">{feature}</span>
+                                    <span className="text-gray-800 font-medium dark:text-gray-200">{feature}</span>
                                 </motion.div>
                             ))}
                         </motion.div>
@@ -150,7 +150,7 @@ const AboutPage = () => {
                 <section className="py-20 px-4">
                     <div className="max-w-7xl mx-auto">
                         <div className="text-center mb-16">
-                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 dark:text-white">
                                 Our Core Values
                             </h2>
                             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -170,14 +170,14 @@ const AboutPage = () => {
                                     <motion.div
                                         key={index}
                                         variants={staggerItem}
-                                        className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center"
+                                        className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-center dark:bg-gray-800"
                                         whileHover={{ y: -8 }}
                                     >
                                         <div className="bg-linear-to-br from-blue-500 to-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                                             <Icon className="w-8 h-8 text-white" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-gray-900 mb-3">{value.title}</h3>
-                                        <p className="text-gray-600">{value.description}</p>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-3 dark:text-white">{value.title}</h3>
+                                        <p className="text-gray-600 dark:text-gray-400">{value.description}</p>
                                     </motion.div>
                                 );
                             })}
@@ -205,10 +205,10 @@ const AboutPage = () => {
             {/* CTA Section */}
             <section className="py-20 px-4">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                    <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 dark:text-white">
                         Ready to Start Your Journey?
                     </h2>
-                    <p className="text-xl text-gray-600 mb-10">
+                    <p className="text-xl text-gray-600 mb-10 dark:text-gray-300">
                         Join thousands of satisfied travelers who trust Luxe Stay for their perfect accommodations
                     </p>
                     <Link to="/HotelsPage">
