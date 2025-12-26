@@ -19,7 +19,7 @@ const MOCK_HOTELS = [
         description: 'Experience luxury in the heart of New York City. Features a rooftop pool, spa, and gourmet dining.',
         price: 350,
         rating: 4.8,
-        image_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        image_url: '',
         amenities: ['Pool', 'Spa', 'Gym', 'Restaurant', 'Free Wi-Fi'],
         rooms: [
             { id: 101, type: 'Deluxe King', price: 350, capacity: 2, available: true },
@@ -33,7 +33,7 @@ const MOCK_HOTELS = [
         description: 'Relax by the ocean in our beautiful seaside resort. Private beach access and water sports available.',
         price: 280,
         rating: 4.5,
-        image_url: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        image_url: '',
         amenities: ['Beach Access', 'Pool', 'Bar', 'Water Sports'],
         rooms: [
             { id: 201, type: 'Ocean View', price: 280, capacity: 2, available: true },
@@ -47,7 +47,7 @@ const MOCK_HOTELS = [
         description: 'Cozy cabins and stunning mountain views. Perfect for skiing in winter and hiking in summer.',
         price: 400,
         rating: 4.9,
-        image_url: 'https://images.unsplash.com/photo-1585543805890-6051f7829f98?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        image_url: '',
         amenities: ['Ski-in/Ski-out', 'Fireplace', 'Hot Tub', 'Hiking Trails'],
         rooms: [
             { id: 301, type: 'Cabin', price: 400, capacity: 4, available: true },
@@ -60,7 +60,7 @@ const MOCK_HOTELS = [
         description: 'Modern loft-style rooms in the bustling city center. Close to all major attractions.',
         price: 220,
         rating: 4.2,
-        image_url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        image_url: '',
         amenities: ['City View', 'Gym', 'Coworking Space'],
         rooms: [
             { id: 401, type: 'Standard', price: 220, capacity: 2, available: true },
@@ -73,7 +73,7 @@ const MOCK_HOTELS = [
         description: 'Luxury amidst the dunes. Experience the magic of the desert with 5-star comfort.',
         price: 600,
         rating: 5.0,
-        image_url: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+        image_url: '',
         amenities: ['Desert Safari', 'Pool', 'Spa', 'Fine Dining'],
         rooms: [
             { id: 501, type: 'Villa', price: 600, capacity: 4, available: true },

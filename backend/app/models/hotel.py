@@ -27,6 +27,8 @@ class Room(Base):
     capacity = Column(Integer, default=1)
     is_available = Column(Boolean, default=True)
     description = Column(Text, nullable=True)
+    max_bookings = Column(Integer, default=1)  # Maximum concurrent bookings allowed
 
     # Relationships
     hotel = relationship("Hotel", back_populates="rooms")
+

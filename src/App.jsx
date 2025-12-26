@@ -9,6 +9,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // login register forgot password
 import AuthLayout from './components/Auth/AuthLayout.jsx';
+import ResetPasswordForm from './components/Auth/ResetPasswordForm.jsx';
 
 // Public Pages (accessible to everyone)
 import HomePage from './Features/Public/Pages/HomePage.jsx';
@@ -73,6 +74,7 @@ function App() {
           <Route path="/login" element={<AuthLayout />} />
           <Route path="/register" element={<AuthLayout />} />
           <Route path="/forgot-password" element={<AuthLayout />} />
+          <Route path="/reset-password" element={<ResetPasswordForm />} />
 
           {/* ======================= 2. MANAGER ROUTES (Requires 'manager' role) ======================= */}
           <Route element={

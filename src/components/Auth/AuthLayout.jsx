@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import { RegisterForm } from './RegisterForm';
-import PasswordReset from './PasswordReset';
+import { ForgotPasswordForm } from './ForgotPasswordForm';
 
 const AuthLayout = () => {
   const location = useLocation();
@@ -27,7 +27,7 @@ const AuthLayout = () => {
       case 'register':
         return <RegisterForm setAuthView={setAuthView} />;
       case 'reset':
-        return <PasswordReset setAuthView={setAuthView} />;
+        return <ForgotPasswordForm setAuthView={setAuthView} />;
       default:
         return <LoginForm setAuthView={setAuthView} />;
     }

@@ -9,6 +9,7 @@ class RoomBase(BaseModel):
     capacity: int = 1
     description: Optional[str] = None
     is_available: bool = True
+    max_bookings: int = 1  # Maximum concurrent bookings allowed
 
 class RoomCreate(RoomBase):
     hotel_id: int
@@ -20,6 +21,7 @@ class RoomUpdate(BaseModel):
     capacity: Optional[int] = None
     description: Optional[str] = None
     is_available: Optional[bool] = None
+    max_bookings: Optional[int] = None
 
 class Room(RoomBase):
     id: int

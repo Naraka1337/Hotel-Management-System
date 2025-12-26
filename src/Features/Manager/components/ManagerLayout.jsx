@@ -94,7 +94,7 @@ const ManagerLayout = () => {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 w-full">
+            <div className="flex-1 w-full overflow-x-hidden">
                 {/* Top Navigation */}
                 <header className="bg-white shadow-sm sticky top-0 z-10">
                     <div className="flex items-center justify-between p-4">

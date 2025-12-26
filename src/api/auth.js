@@ -51,4 +51,19 @@ export const logout = () => {
   localStorage.removeItem('access_token');
 };
 
-export default { login, register, getCurrentUser, logout };
+// Forgot Password - Request reset email
+export const forgotPassword = async (email) => {
+  const response = await axiosClient.post('/api/auth/forgot-password', { email });
+  return response.data;
+};
+
+// Reset Password - Set new password with token
+export const resetPassword = async (token, newPassword) => {
+  const response = await axiosClient.post('/api/auth/reset-password', {
+    token,
+    new_password: newPassword,
+  });
+  return response.data;
+};
+
+export default { login, register, getCurrentUser, logout, forgotPassword, resetPassword };

@@ -94,11 +94,38 @@ def get_manager_dashboard(db: Session = Depends(get_db), current_user: User = De
         "recent_bookings": recent_bookings
     }
 
-@router.get("/rooms", response_model=List[RoomSchema])
+@router.get("/rooms")
 def get_manager_rooms(db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):
     hotels = db.query(Hotel).filter(Hotel.manager_id == current_user.id).all()
     hotel_ids = [h.id for h in hotels]
-    return db.query(Room).filter(Room.hotel_id.in_(hotel_ids)).all()
+    rooms = db.query(Room).filter(Room.hotel_id.in_(hotel_ids)).order_by(Room.id.desc()).all()
+    
+    today = date.today()
+    result = []
+    for room in rooms:
+        # Count ALL confirmed bookings for this room (future and current)
+        current_bookings = db.query(Booking).filter(
+            Booking.room_id == room.id,
+            Booking.status == "confirmed",
+            Booking.check_out >= today  # Include current and future bookings
+        ).count()
+        
+        room_dict = {
+            "id": room.id,
+            "hotel_id": room.hotel_id,
+            "room_number": room.room_number,
+            "type": room.type,
+            "price": room.price,
+            "capacity": room.capacity,
+            "is_available": room.is_available,
+            "description": room.description,
+            "max_bookings": room.max_bookings or 1,
+            "current_bookings": current_bookings,
+            "available_slots": (room.max_bookings or 1) - current_bookings
+        }
+        result.append(room_dict)
+    
+    return result
 
 @router.post("/rooms", response_model=RoomSchema)
 def create_room(room: RoomCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_manager)):

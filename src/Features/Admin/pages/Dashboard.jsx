@@ -298,7 +298,7 @@ const AdminDashboard = () => {
                 onClick={() => setIsSidebarOpen(false)}>
             </div>
 
-            <div className={`w-64 bg-gray-900 text-white flex flex-col h-screen fixed md:static z-30 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+            <div className={`w-64 bg-gray-900 text-white flex flex-col min-h-screen shrink-0 fixed md:sticky md:top-0 z-30 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 <div className="p-6 text-2xl font-bold tracking-wider border-b border-gray-800 text-blue-400 flex items-center justify-between">
                     <div className="flex items-center">
                         <span className="bg-blue-600 text-white p-2 rounded-lg mr-3">
@@ -348,7 +348,7 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            <div className="flex-1 transition-all duration-300 w-full">
+            <div className="flex-1 transition-all duration-300 w-full overflow-x-hidden">
                 {/* Top Navigation */}
                 <header className="bg-white shadow-sm sticky top-0 z-10">
                     <div className="flex items-center justify-between p-4">

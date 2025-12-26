@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { Plus, Edit, Trash2, User, Mail, Shield, X, Save, Ban, CheckCircle, Loader } from 'lucide-react';
+import { Plus, Edit, Trash2, User, Mail, Shield, X, Save, Ban, CheckCircle, Loader, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllUsers, updateUser, deleteUser } from '../../api/admin';
 import { fadeIn, staggerContainer, staggerItem, scaleIn, modalBackdrop } from '../../utils/animations';
@@ -17,6 +17,8 @@ const UserManagementTable = () => {
         role: 'customer',
         is_active: true
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const usersPerPage = 8;
 
     // Fetch Users
     const { data: users = [], isLoading, error } = useQuery({
@@ -129,6 +131,12 @@ const UserManagementTable = () => {
         );
     }
 
+    // Pagination
+    const totalPages = Math.ceil(users.length / usersPerPage);
+    const startIndex = (currentPage - 1) * usersPerPage;
+    const endIndex = startIndex + usersPerPage;
+    const paginatedUsers = users.slice(startIndex, endIndex);
+
     return (
         <motion.div className="p-6 space-y-6" {...fadeIn}>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -188,7 +196,7 @@ const UserManagementTable = () => {
                             initial="initial"
                             animate="animate"
                         >
-                            {users.map((user) => (
+                            {paginatedUsers.map((user) => (
                                 <motion.tr
                                     key={user.id}
                                     className="hover:bg-gray-50 transition duration-150"
@@ -242,6 +250,43 @@ const UserManagementTable = () => {
                         </motion.tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-between p-4 border-t border-gray-100">
+                        <div className="text-sm text-gray-500">
+                            Showing {startIndex + 1} to {Math.min(endIndex, users.length)} of {users.length} users
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft className="w-5 h-5" />
+                            </button>
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`px-3 py-1 rounded-lg ${currentPage === page
+                                            ? 'bg-blue-600 text-white'
+                                            : 'border border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronRight className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Edit User Modal */}

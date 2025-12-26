@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, Enum
+from sqlalchemy import Boolean, Column, Integer, String, Enum, DateTime
 from app.core.database import Base
 import enum
 
@@ -16,3 +16,8 @@ class User(Base):
     full_name = Column(String)
     role = Column(String, default=UserRole.GUEST)
     is_active = Column(Boolean, default=True)
+    
+    # Password reset fields
+    reset_token = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
+

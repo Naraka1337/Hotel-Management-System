@@ -1,7 +1,7 @@
 // src/Features/Manager/pages/BookingsPage.jsx
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Calendar, Clock, Search, Filter, Download, Plus, Edit, Trash2, X, Save } from 'lucide-react';
+import { Calendar, Clock, Search, Filter, Download, Plus, Edit, Trash2, X, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const BookingsPage = () => {
   const [bookings, setBookings] = useState([
@@ -36,6 +36,9 @@ const BookingsPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const bookingsPerPage = 5;
   const [currentBooking, setCurrentBooking] = useState({
     id: '',
     guest: '',
@@ -129,6 +132,16 @@ const BookingsPage = () => {
     }
   };
 
+  // Filter and pagination
+  const filteredBookings = bookings.filter(booking =>
+    booking.guest.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    booking.room.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage);
+  const startIndex = (currentPage - 1) * bookingsPerPage;
+  const endIndex = startIndex + bookingsPerPage;
+  const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -158,6 +171,8 @@ const BookingsPage = () => {
               type="text"
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Search bookings..."
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             />
           </div>
           <button className="text-sm text-gray-600 hover:text-blue-600 flex items-center">
@@ -191,7 +206,7 @@ const BookingsPage = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {bookings.map((booking) => (
+              {paginatedBookings.map((booking) => (
                 <tr key={booking.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="font-medium text-gray-900">{booking.guest}</div>
@@ -233,6 +248,43 @@ const BookingsPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6 px-4">
+            <div className="text-sm text-gray-500">
+              Showing {startIndex + 1} to {Math.min(endIndex, filteredBookings.length)} of {filteredBookings.length} bookings
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-1 rounded-lg ${currentPage === page
+                      ? 'bg-blue-600 text-white'
+                      : 'border border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Booking Modal */}

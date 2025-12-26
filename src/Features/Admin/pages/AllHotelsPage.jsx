@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { Plus, Edit, Trash2, MapPin, Star, X, Save, Hotel, Loader, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, MapPin, Star, X, Save, Hotel, Loader, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAllHotels, createHotel, updateHotel, deleteHotel } from '../../../api/admin';
 import { fadeIn, staggerContainer, staggerItem, scaleIn, modalBackdrop } from '../../../utils/animations';
+import { getHotelImage } from '../../../assets/hotelImages';
 
 const AllHotelsPage = () => {
     const queryClient = useQueryClient();
@@ -18,6 +19,8 @@ const AllHotelsPage = () => {
         manager_id: '', // Assuming we might assign a manager, but maybe optional
         image_url: ''
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const hotelsPerPage = 6;
 
     // Fetch Hotels
     const { data: hotels = [], isLoading, error } = useQuery({
@@ -135,6 +138,12 @@ const AllHotelsPage = () => {
         );
     }
 
+    // Pagination
+    const totalPages = Math.ceil(hotels.length / hotelsPerPage);
+    const startIndex = (currentPage - 1) * hotelsPerPage;
+    const endIndex = startIndex + hotelsPerPage;
+    const paginatedHotels = hotels.slice(startIndex, endIndex);
+
     return (
         <motion.div className="p-6 space-y-6" {...fadeIn}>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -153,7 +162,7 @@ const AllHotelsPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <AnimatePresence>
-                    {hotels.map((hotel) => (
+                    {paginatedHotels.map((hotel) => (
                         <motion.div
                             key={hotel.id}
                             className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300"
@@ -163,19 +172,13 @@ const AllHotelsPage = () => {
                             exit={{ opacity: 0, scale: 0.9 }}
                             layout
                         >
-                            <div className="h-48 bg-gray-200 relative">
-                                {hotel.image_url ? (
-                                    <img
-                                        src={hotel.image_url}
-                                        alt={hotel.name}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/400x200?text=No+Image'; }}
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                        <ImageIcon className="w-12 h-12" />
-                                    </div>
-                                )}
+                            <div className="h-56 bg-gray-200 relative">
+                                <img
+                                    src={getHotelImage(hotel.id)}
+                                    alt={hotel.name}
+                                    className="w-full h-full object-cover"
+                                    loading="lazy"
+                                />
                                 <div className="absolute top-2 right-2 flex space-x-2">
                                     <button
                                         onClick={() => handleOpenModal(hotel)}
@@ -205,6 +208,43 @@ const AllHotelsPage = () => {
                     ))}
                 </AnimatePresence>
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-500">
+                        Showing {startIndex + 1} to {Math.min(endIndex, hotels.length)} of {hotels.length} hotels
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                            <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={`px-3 py-1 rounded-lg ${currentPage === page
+                                    ? 'bg-blue-600 text-white'
+                                    : 'border border-gray-300 hover:bg-gray-50'
+                                    }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Add/Edit Hotel Modal */}
             <AnimatePresence>

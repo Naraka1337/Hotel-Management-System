@@ -8,6 +8,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { fadeIn } from '../../../utils/animations';
 import { Loader, Star, MapPin, Users } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { getHotelImage } from '../../../assets/hotelImages';
 
 const HotelDetails = () => {
   const { hotelId } = useParams();
@@ -96,8 +97,8 @@ const HotelDetails = () => {
     );
   }
 
-  // Use hotel images or fallback
-  const images = hotel.image_url ? [hotel.image_url] : ['https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80'];
+  // Use local hotel images for fast loading
+  const images = [getHotelImage(parseInt(hotelId))];
 
   // Mock amenities/policies if not in API yet
   const amenities = hotel.amenities || ['Free WiFi', 'Pool', 'Spa', 'Restaurant', 'Gym'];
@@ -129,11 +130,13 @@ const HotelDetails = () => {
       </div>
 
       {/* Image Gallery */}
-      <div className="relative mb-8 rounded-xl overflow-hidden bg-gray-100 h-[400px] md:h-[500px]">
+      <div className="relative mb-8 rounded-xl overflow-hidden bg-gray-100 h-[450px] md:h-[550px]">
         <img
           src={images[currentImageIndex]}
           alt={hotel.name}
+          loading="eager"
           className="w-full h-full object-cover"
+          style={{ imageRendering: 'auto' }}
         />
       </div>
 

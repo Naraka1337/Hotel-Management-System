@@ -1,33 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Star, MapPin, Search, SlidersHorizontal, Loader } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Star, MapPin, Search, SlidersHorizontal, Loader, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getHotels } from '../../../api/public';
 import { fadeIn, staggerContainer, staggerItem } from '../../../utils/animations';
 
-// Fallback image if API doesn't provide one
-import grandPlazaImage from '../../../assets/grand_plaza_hotel.png';
+// Local hotel images for fast loading
+import { getHotelImage, defaultHotelImage } from '../../../assets/hotelImages';
 
 function HotelsPage() {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const initialSearchQuery = searchParams.get('search') || '';
-
-  const [searchLocation, setSearchLocation] = useState(initialSearchQuery);
+  const [searchLocation, setSearchLocation] = useState('');
   const [checkInDate, setCheckInDate] = useState('');
   const [checkOutDate, setCheckOutDate] = useState('');
   const [dateError, setDateError] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState('all');
 
   // Set minimum date to today
   const today = new Date().toISOString().split('T')[0];
 
-  // Fetch hotels using React Query
-  const { data: hotels = [], isLoading, error } = useQuery({
-    queryKey: ['hotels', initialSearchQuery],
-    queryFn: () => getHotels(initialSearchQuery ? { location: initialSearchQuery } : {}),
+  // Fetch ALL hotels once with caching (5 min stale, 10 min garbage collection)
+  const { data: hotels = [], isLoading, error, isFetching } = useQuery({
+    queryKey: ['hotels'],
+    queryFn: () => getHotels({}),
+    staleTime: 5 * 60 * 1000, // Data fresh for 5 minutes
+    gcTime: 10 * 60 * 1000,   // Keep in cache for 10 minutes
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
   });
+
+  // Extract unique countries from hotel locations
+  const countries = useMemo(() => {
+    const countrySet = new Set();
+    hotels.forEach(hotel => {
+      if (hotel.location) {
+        // Extract country (last part after comma)
+        const parts = hotel.location.split(',');
+        if (parts.length > 1) {
+          const country = parts[parts.length - 1].trim();
+          countrySet.add(country);
+        }
+      }
+    });
+    return Array.from(countrySet).sort();
+  }, [hotels]);
+
+  // Filter hotels by search term and selected country (local filtering)
+  const filteredHotels = useMemo(() => {
+    let result = hotels;
+
+    // Filter by search term
+    if (searchLocation.trim()) {
+      const searchLower = searchLocation.toLowerCase();
+      result = result.filter(hotel =>
+        hotel.name?.toLowerCase().includes(searchLower) ||
+        hotel.location?.toLowerCase().includes(searchLower) ||
+        hotel.description?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Filter by country
+    if (selectedCountry !== 'all') {
+      result = result.filter(hotel => {
+        if (!hotel.location) return false;
+        const parts = hotel.location.split(',');
+        if (parts.length > 1) {
+          const country = parts[parts.length - 1].trim();
+          return country === selectedCountry;
+        }
+        return false;
+      });
+    }
+
+    return result;
+  }, [hotels, searchLocation, selectedCountry]);
 
   if (isLoading) {
     return (
@@ -119,9 +165,11 @@ function HotelsPage() {
               </div>
             )}
 
-            <button className="mt-6 w-full bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center">
+            <button
+              className="mt-6 w-full bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center"
+            >
               <Search className="w-5 h-5 mr-2" />
-              Search Hotels
+              {isLoading ? 'Searching...' : 'Search Hotels'}
             </button>
           </div>
         </div>
@@ -130,18 +178,34 @@ function HotelsPage() {
       {/* Hotels Grid */}
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
             <div>
               <h2 className="text-3xl font-bold text-gray-900">Available Hotels</h2>
-              <p className="text-gray-600 mt-1">{hotels.length} properties found</p>
+              <p className="text-gray-600 mt-1">{filteredHotels.length} properties found</p>
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 bg-white px-4 py-2 rounded-xl border-2 border-gray-200 hover:border-blue-500 transition-colors"
-            >
-              <SlidersHorizontal className="w-5 h-5" />
-              <span className="font-medium">Filters</span>
-            </button>
+            <div className="flex items-center gap-4">
+              {/* Country Filter Dropdown */}
+              <div className="relative">
+                <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <select
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
+                  className="pl-10 pr-8 py-2 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-blue-500 focus:outline-none transition-colors bg-white min-w-[180px] appearance-none cursor-pointer"
+                >
+                  <option value="all">All Countries</option>
+                  {countries.map(country => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center space-x-2 bg-white px-4 py-2 rounded-xl border-2 border-gray-200 hover:border-blue-500 transition-colors"
+              >
+                <SlidersHorizontal className="w-5 h-5" />
+                <span className="font-medium">Filters</span>
+              </button>
+            </div>
           </div>
 
           <motion.div
@@ -150,7 +214,7 @@ function HotelsPage() {
             initial="initial"
             animate="animate"
           >
-            {hotels.map((hotel) => (
+            {filteredHotels.map((hotel) => (
               <motion.div
                 key={hotel.id}
                 variants={staggerItem}
@@ -158,12 +222,13 @@ function HotelsPage() {
                 whileHover={{ y: -8 }}
               >
                 {/* Hotel Image */}
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-72 overflow-hidden">
                   <img
-                    src={hotel.image_url || grandPlazaImage}
+                    src={getHotelImage(hotel.id)}
                     alt={hotel.name}
+                    loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={(e) => { e.target.src = grandPlazaImage; }}
+                    onError={(e) => { e.target.src = defaultHotelImage; }}
                   />
                   <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full flex items-center gap-1 shadow-lg">
                     <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />

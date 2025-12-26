@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { Plus, Edit, Trash2, Bed, Wifi, Tv, Coffee, Wind, Users, DollarSign, Loader, X, Save } from 'lucide-react';
+import { Plus, Edit, Trash2, Bed, Wifi, Tv, Coffee, Wind, Users, DollarSign, Loader, X, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getManagerRooms, createRoom, updateRoom, deleteRoom, getManagerHotels } from '../../../api/manager';
 import { fadeIn, staggerContainer, staggerItem, scaleIn, modalBackdrop } from '../../../utils/animations';
@@ -29,6 +29,7 @@ const initialRoomData = {
   room_type: 'single',
   price_per_night: '',
   capacity: 1,
+  max_bookings: 1,
   amenities: [], // Assuming backend handles this or we store as JSON/string
   is_available: true,
   description: ''
@@ -41,6 +42,8 @@ const ManageRoomsPage = () => {
   const [currentRoom, setCurrentRoom] = useState(initialRoomData);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const roomsPerPage = 5;
 
   // Fetch Rooms
   const { data: rooms = [], isLoading: isLoadingRooms, error: roomsError } = useQuery({
@@ -121,6 +124,7 @@ const ManageRoomsPage = () => {
       type: currentRoom.room_type, // Backend expects 'type', frontend uses 'room_type'
       price: parseFloat(currentRoom.price_per_night), // Backend expects 'price', frontend uses 'price_per_night'
       capacity: parseInt(currentRoom.capacity),
+      max_bookings: parseInt(currentRoom.max_bookings) || 1,
       hotel_id: parseInt(currentRoom.hotel_id)
       // amenities is not in RoomCreate schema, so it might be ignored or cause error if extra fields forbidden.
       // For now, let's exclude it from the payload to fix 422, or update backend schema.
@@ -149,6 +153,7 @@ const ManageRoomsPage = () => {
       room_type: room.type || 'single', // Map backend 'type' to frontend 'room_type'
       price_per_night: room.price?.toString() || '', // Map backend 'price' to frontend 'price_per_night'
       capacity: room.capacity || 1,
+      max_bookings: room.max_bookings || 1,
       amenities: room.amenities || []
     });
     setIsEditMode(true);
@@ -174,7 +179,7 @@ const ManageRoomsPage = () => {
   // Filter logic
   const filteredRooms = rooms.filter(room => {
     const matchesSearch = (room.room_number?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-      room.room_type?.toLowerCase().includes(searchTerm.toLowerCase()));
+      room.type?.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesStatus = statusFilter === 'all' ||
       (statusFilter === 'available' && room.is_available) ||
@@ -182,6 +187,23 @@ const ManageRoomsPage = () => {
 
     return matchesSearch && matchesStatus;
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredRooms.length / roomsPerPage);
+  const startIndex = (currentPage - 1) * roomsPerPage;
+  const endIndex = startIndex + roomsPerPage;
+  const paginatedRooms = filteredRooms.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filter changes
+  const handleFilterChange = (newFilter) => {
+    setStatusFilter(newFilter);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
 
   if (isLoadingRooms || isLoadingHotels) {
     return (
@@ -222,7 +244,7 @@ const ManageRoomsPage = () => {
               placeholder="Search by room number or type..."
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
           <div>
@@ -231,7 +253,7 @@ const ManageRoomsPage = () => {
               id="status"
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => handleFilterChange(e.target.value)}
             >
               <option value="all">All Status</option>
               <option value="available">Available</option>
@@ -247,28 +269,22 @@ const ManageRoomsPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hotel</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amenities</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max Slots</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <motion.tbody
-              className="bg-white divide-y divide-gray-200"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
-              {filteredRooms.length > 0 ? (
-                filteredRooms.map((room) => {
+            <tbody className="bg-white divide-y divide-gray-200">
+              {paginatedRooms.length > 0 ? (
+                paginatedRooms.map((room) => {
                   // Find hotel name
                   const hotel = hotels.find(h => h.id === room.hotel_id);
                   return (
-                    <motion.tr
+                    <tr
                       key={room.id}
                       className="hover:bg-gray-50"
-                      variants={staggerItem}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -286,21 +302,8 @@ const ManageRoomsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {roomTypes.find(t => t.id === room.room_type)?.name || room.room_type}
+                          {roomTypes.find(t => t.id === room.type)?.name || room.type}
                         </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-1">
-                          {room.amenities && room.amenities.map(amenityId => {
-                            const amenity = roomAmenities.find(a => a.id === amenityId);
-                            return amenity ? (
-                              <span key={amenityId} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                {amenity.icon}
-                                <span className="ml-1">{amenity.name}</span>
-                              </span>
-                            ) : null;
-                          })}
-                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-sm text-gray-500">
@@ -311,8 +314,16 @@ const ManageRoomsPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-sm font-medium text-gray-900">
                           <DollarSign className="w-4 h-4 mr-1" />
-                          {room.price_per_night?.toFixed(2)}/night
+                          {room.price?.toFixed(2) || '0.00'}/night
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${room.available_slots > 0
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                          }`}>
+                          {room.available_slots ?? (room.max_bookings || 1)}/{room.max_bookings || 1} available
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(room.is_available)}`}>
@@ -333,7 +344,7 @@ const ManageRoomsPage = () => {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
-                    </motion.tr>
+                    </tr>
                   );
                 })
               ) : (
@@ -343,9 +354,46 @@ const ManageRoomsPage = () => {
                   </td>
                 </tr>
               )}
-            </motion.tbody>
+            </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6 px-4">
+            <div className="text-sm text-gray-500">
+              Showing {startIndex + 1} to {Math.min(endIndex, filteredRooms.length)} of {filteredRooms.length} rooms
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-1 rounded-lg ${currentPage === page
+                    ? 'bg-blue-600 text-white'
+                    : 'border border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Room Modal */}
@@ -470,6 +518,25 @@ const ManageRoomsPage = () => {
                           </option>
                         ))}
                       </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="max_bookings" className="block text-sm font-medium text-gray-700 mb-1">
+                        Max Bookings *
+                      </label>
+                      <input
+                        type="number"
+                        id="max_bookings"
+                        name="max_bookings"
+                        required
+                        min="1"
+                        max="100"
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        value={currentRoom.max_bookings}
+                        onChange={handleInputChange}
+                        placeholder="Maximum concurrent bookings"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Maximum number of bookings allowed at the same time</p>
                     </div>
 
                     <div className="md:col-span-2">

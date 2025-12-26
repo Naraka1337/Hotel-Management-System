@@ -1,7 +1,7 @@
 // src/Features/Admin/pages/AllRoomsPage.jsx
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Plus, Edit, Trash2, Search, Filter, Bed, Hotel as HotelIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Filter, Bed, Hotel as HotelIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const AllRoomsPage = () => {
     // Sample rooms data from all hotels
@@ -27,6 +27,8 @@ const AllRoomsPage = () => {
     });
     const [searchTerm, setSearchTerm] = useState('');
     const [filterHotel, setFilterHotel] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
+    const roomsPerPage = 5;
 
     // Available hotels (in real app, fetch from API)
     const availableHotels = [
@@ -116,6 +118,12 @@ const AllRoomsPage = () => {
         return matchesSearch && matchesFilter;
     });
 
+    // Pagination
+    const totalPages = Math.ceil(filteredRooms.length / roomsPerPage);
+    const startIndex = (currentPage - 1) * roomsPerPage;
+    const endIndex = startIndex + roomsPerPage;
+    const paginatedRooms = filteredRooms.slice(startIndex, endIndex);
+
     const getStatusBadge = (status) => {
         switch (status) {
             case 'Available':
@@ -157,7 +165,7 @@ const AllRoomsPage = () => {
                             placeholder="Search by room number or hotel..."
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                         />
                     </div>
                     <div className="relative">
@@ -165,7 +173,7 @@ const AllRoomsPage = () => {
                         <select
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                             value={filterHotel}
-                            onChange={(e) => setFilterHotel(e.target.value)}
+                            onChange={(e) => { setFilterHotel(e.target.value); setCurrentPage(1); }}
                         >
                             <option value="all">All Hotels</option>
                             {availableHotels.map(hotel => (
@@ -218,7 +226,7 @@ const AllRoomsPage = () => {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
-                            {filteredRooms.map((room) => (
+                            {paginatedRooms.map((room) => (
                                 <tr key={room.id} className="hover:bg-gray-50 transition duration-150">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
@@ -280,6 +288,43 @@ const AllRoomsPage = () => {
                     </div>
                 )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-500">
+                        Showing {startIndex + 1} to {Math.min(endIndex, filteredRooms.length)} of {filteredRooms.length} rooms
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                            <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={`px-3 py-1 rounded-lg ${currentPage === page
+                                        ? 'bg-blue-600 text-white'
+                                        : 'border border-gray-300 hover:bg-gray-50'
+                                    }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Add/Edit Room Modal */}
             {isModalOpen && (
