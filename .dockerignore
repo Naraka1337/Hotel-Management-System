@@ -1,0 +1,19 @@
+# Git
+.git
+.gitignore
+
+# Dependencies
+node_modules
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+
+# Docker
+docker-compose.yml
+Dockerfile
+
+# Build output
+dist
+build

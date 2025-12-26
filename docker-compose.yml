@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hotel_backend
+    volumes:
+      # Mount the database directory to persist data
+      - ./backend/hotel.db:/app/backend/hotel.db
+    ports:
+      - "8000:8000"
+    networks:
+      - hotel-network
+    restart: always
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: hotel_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - hotel-network
+    restart: always
+
+networks:
+  hotel-network:
+    driver: bridge
