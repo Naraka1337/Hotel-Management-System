@@ -10,7 +10,8 @@ A modern, full-stack Hotel Management System built with **React 19** and **FastA
 - **Browse Hotels:** View a list of available hotels with images and descriptions.
 - **Room Booking:** Search for rooms by date and book them instantly.
 - **My Bookings:** View personal booking history and status.
-- **Authentication:** Secure registration and login system.
+- **Dark Mode Support:** Toggle between light and dark themes (System/Manual).
+- **Authentication:** Secure registration and login system with Password Reset.
 
 ### 💼 Hotel Manager
 - **Dashboard:** Real-time overview of total rooms, bookings, revenue, and occupancy rates.
@@ -76,10 +77,31 @@ Hotel-Management-System/
 ## ⚡ Installation & Setup
 
 ### Prerequisites
-- Node.js (v18+)
-- Python (v3.10+)
+- Docker & Docker Compose (Recommended)
+- Node.js (v18+) (For manual setup)
+- Python (v3.10+) (For manual setup)
 
-### 1. Backend Setup
+### 🚀 Quick Start (Docker)
+
+The easiest way to run the application is using Docker.
+
+1. **Build and Run:**
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Access the App:**
+   - Frontend: `http://localhost:80`
+   - Backend API: `http://localhost:8000`
+   - API Docs: `http://localhost:8000/docs`
+
+---
+
+### 🛠️ Manual Setup
+
+If you prefer to run the services manually without Docker:
+
+#### 1. Backend Setup
 
 It is **highly recommended** to use a virtual environment for the backend to avoid dependency conflicts.
 
